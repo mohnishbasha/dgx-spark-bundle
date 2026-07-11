@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" width="960" height="700" font-family="'SF Mono', 'Consolas', 'Menlo', monospace">
+
+  <!-- Background -->
+  <rect width="960" height="700" fill="#0f1117" rx="12"/>
+
+  <!-- Title -->
+  <text x="480" y="38" text-anchor="middle" fill="#e2e8f0" font-size="17" font-weight="bold" letter-spacing="1">DGX Spark Bundle — 2-Node Cluster Architecture</text>
+
+  <!-- ═══ NETWORK LAYER ═══ -->
+  <rect x="340" y="58" width="280" height="52" rx="8" fill="#1e2d3d" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="480" y="79" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="bold">Home Network  192.168.86.0/24</text>
+  <text x="480" y="97" text-anchor="middle" fill="#64748b" font-size="10">Router / Switch  gateway: 192.168.86.1</text>
+
+  <!-- Ethernet down-lines from router to nodes -->
+  <line x1="390" y1="110" x2="265" y2="170" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <line x1="570" y1="110" x2="695" y2="170" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="295" y="150" fill="#3b82f6" font-size="9" text-anchor="middle">1GbE Ethernet</text>
+  <text x="665" y="150" fill="#3b82f6" font-size="9" text-anchor="middle">1GbE Ethernet</text>
+
+  <!-- ═══ SPARK 1 NODE ═══ -->
+  <rect x="30" y="170" width="400" height="490" rx="10" fill="#111827" stroke="#22d3ee" stroke-width="2"/>
+  <!-- Node header -->
+  <rect x="30" y="170" width="400" height="44" rx="10" fill="#0e4d5f"/>
+  <rect x="30" y="192" width="400" height="22" fill="#0e4d5f"/>
+  <text x="230" y="189" text-anchor="middle" fill="#22d3ee" font-size="13" font-weight="bold">Spark 1  —  spark-720e</text>
+  <text x="230" y="207" text-anchor="middle" fill="#67e8f9" font-size="10">192.168.86.30   ·   k3s control-plane (master)</text>
+
+  <!-- Hardware layer S1 -->
+  <rect x="46" y="224" width="368" height="58" rx="6" fill="#1a1a2e" stroke="#6366f1" stroke-width="1.2"/>
+  <text x="68" y="243" fill="#a5b4fc" font-size="10" font-weight="bold">HARDWARE</text>
+  <text x="68" y="258" fill="#818cf8" font-size="10">GB10 Blackwell GPU  ·  NVLink-C2C</text>
+  <text x="68" y="272" fill="#818cf8" font-size="10">128 GB unified LPDDR5X  ·  20-core ARM64 Grace CPU</text>
+
+  <!-- OS + CUDA S1 -->
+  <rect x="46" y="291" width="368" height="48" rx="6" fill="#1a2a1a" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="68" y="310" fill="#86efac" font-size="10" font-weight="bold">OS + CUDA</text>
+  <text x="68" y="327" fill="#6ee7b7" font-size="10">DGX OS  ·  Ubuntu 24.04.4 LTS  ·  Kernel 6.17  ·  CUDA 13.0  ·  Driver 580.159.03</text>
+
+  <!-- k3s S1 -->
+  <rect x="46" y="348" width="368" height="48" rx="6" fill="#1a1a2e" stroke="#818cf8" stroke-width="1.2"/>
+  <text x="68" y="367" fill="#a5b4fc" font-size="10" font-weight="bold">KUBERNETES  —  k3s v1.35.5+k3s1  (Flannel CNI)</text>
+  <text x="68" y="384" fill="#818cf8" font-size="10">API server · etcd(SQLite) · scheduler · controller-manager · kubelet · containerd 2.2.3</text>
+
+  <!-- GPU Operator S1 -->
+  <rect x="46" y="405" width="368" height="48" rx="6" fill="#1f1a0a" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="68" y="424" fill="#fde68a" font-size="10" font-weight="bold">NVIDIA GPU OPERATOR  (gpu-operator ns)</text>
+  <text x="68" y="441" fill="#fcd34d" font-size="10">Container Toolkit  ·  Device Plugin  ·  DCGM Exporter  ·  Feature Discovery</text>
+
+  <!-- Workloads S1 -->
+  <rect x="46" y="462" width="368" height="108" rx="6" fill="#1a0a1a" stroke="#f472b6" stroke-width="1.2"/>
+  <text x="68" y="481" fill="#f9a8d4" font-size="10" font-weight="bold">WORKLOADS  (core-services ns)</text>
+  <text x="68" y="497" fill="#f472b6" font-size="10">• qwen-3b   — vLLM  port 8000  (~40% GPU)</text>
+  <text x="68" y="512" fill="#f472b6" font-size="10">• smollm-1b — vLLM  port 8001  (~40% GPU)</text>
+  <text x="68" y="528" fill="#e879f9" font-size="10">• Ray Head Pod  (kuberay — tensor-parallel ref path)</text>
+  <text x="68" y="544" fill="#c084fc" font-size="10">• AIBrix controller  (aibrix-system)</text>
+  <text x="68" y="559" fill="#c084fc" font-size="10">• Prometheus + Grafana  (monitoring)</text>
+
+  <!-- KubeRay / AIBrix / Monitoring badges S1 -->
+  <rect x="46" y="579" width="368" height="66" rx="6" fill="#111827" stroke="#374151" stroke-width="1"/>
+  <text x="68" y="596" fill="#9ca3af" font-size="9.5" font-weight="bold">MANAGEMENT  (manual kubectl / helm from Spark 1)</text>
+  <text x="68" y="611" fill="#6b7280" font-size="9">kuberay-system: KubeRay operator   ·   aibrix-system: AIBrix v0.6.0</text>
+  <text x="68" y="626" fill="#6b7280" font-size="9">envoy-gateway-system: Envoy Gateway   ·   monitoring: Prometheus + Grafana</text>
+  <text x="68" y="641" fill="#6b7280" font-size="9">No ArgoCD / Flux  —  changes applied via kubectl apply on Spark 1</text>
+
+  <!-- ═══ SPARK 2 NODE ═══ -->
+  <rect x="530" y="170" width="400" height="490" rx="10" fill="#111827" stroke="#22d3ee" stroke-width="2"/>
+  <!-- Node header -->
+  <rect x="530" y="170" width="400" height="44" rx="10" fill="#0e4d5f"/>
+  <rect x="530" y="192" width="400" height="22" fill="#0e4d5f"/>
+  <text x="730" y="189" text-anchor="middle" fill="#22d3ee" font-size="13" font-weight="bold">Spark 2  —  spark-7229</text>
+  <text x="730" y="207" text-anchor="middle" fill="#67e8f9" font-size="10">192.168.86.26   ·   k3s worker node</text>
+
+  <!-- Hardware layer S2 -->
+  <rect x="546" y="224" width="368" height="58" rx="6" fill="#1a1a2e" stroke="#6366f1" stroke-width="1.2"/>
+  <text x="568" y="243" fill="#a5b4fc" font-size="10" font-weight="bold">HARDWARE</text>
+  <text x="568" y="258" fill="#818cf8" font-size="10">GB10 Blackwell GPU  ·  NVLink-C2C</text>
+  <text x="568" y="272" fill="#818cf8" font-size="10">128 GB unified LPDDR5X  ·  20-core ARM64 Grace CPU</text>
+
+  <!-- OS + CUDA S2 -->
+  <rect x="546" y="291" width="368" height="48" rx="6" fill="#1a2a1a" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="568" y="310" fill="#86efac" font-size="10" font-weight="bold">OS + CUDA</text>
+  <text x="568" y="327" fill="#6ee7b7" font-size="10">DGX OS  ·  Ubuntu 24.04.4 LTS  ·  Kernel 6.17  ·  CUDA 13.0  ·  Driver 580.159.03</text>
+
+  <!-- k3s S2 -->
+  <rect x="546" y="348" width="368" height="48" rx="6" fill="#1a1a2e" stroke="#818cf8" stroke-width="1.2"/>
+  <text x="568" y="367" fill="#a5b4fc" font-size="10" font-weight="bold">KUBERNETES  —  k3s v1.35.5+k3s1  (Flannel CNI)</text>
+  <text x="568" y="384" fill="#818cf8" font-size="10">kubelet  ·  containerd 2.2.3  ·  Flannel agent</text>
+
+  <!-- GPU Operator S2 -->
+  <rect x="546" y="405" width="368" height="48" rx="6" fill="#1f1a0a" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="568" y="424" fill="#fde68a" font-size="10" font-weight="bold">NVIDIA GPU OPERATOR  (gpu-operator ns)</text>
+  <text x="568" y="441" fill="#fcd34d" font-size="10">Container Toolkit  ·  Device Plugin  ·  DCGM Exporter  ·  Feature Discovery</text>
+
+  <!-- Workloads S2 -->
+  <rect x="546" y="462" width="368" height="108" rx="6" fill="#1a0a1a" stroke="#f472b6" stroke-width="1.2"/>
+  <text x="568" y="481" fill="#f9a8d4" font-size="10" font-weight="bold">WORKLOADS  (core-services ns)</text>
+  <text x="568" y="497" fill="#f472b6" font-size="10">• gemma-2b  — vLLM  port 8000  (~40% GPU)</text>
+  <text x="568" y="512" fill="#f472b6" font-size="10">• falcon-3b  — vLLM  port 8001  (~40% GPU)</text>
+  <text x="568" y="528" fill="#e879f9" font-size="10">• Ray Worker Pod  (tensor-parallel rank 1 — ref path)</text>
+  <text x="568" y="543" fill="#9ca3af" font-size="10">• DCGM node metrics (DaemonSet)</text>
+  <text x="568" y="558" fill="#9ca3af" font-size="10">• Node Exporter (DaemonSet)</text>
+
+  <!-- Managed via label S2 -->
+  <rect x="546" y="579" width="368" height="66" rx="6" fill="#111827" stroke="#374151" stroke-width="1"/>
+  <text x="568" y="596" fill="#9ca3af" font-size="9.5" font-weight="bold">GPU RESOURCES</text>
+  <text x="568" y="611" fill="#6b7280" font-size="9">nvidia.com/gpu: 1   ·   nvidia.com/gpu.family: blackwell</text>
+  <text x="568" y="626" fill="#6b7280" font-size="9">rdma.available: true   ·   aarch64 / ARM64 only</text>
+  <text x="568" y="641" fill="#6b7280" font-size="9">Total combined: 256 GB unified  ·  40 CPU cores</text>
+
+  <!-- ═══ QSFP RDMA INTERCONNECT ═══ -->
+  <!-- Cable body -->
+  <rect x="428" y="638" width="104" height="22" rx="11" fill="#0f1117" stroke="#f97316" stroke-width="2"/>
+  <text x="480" y="653" text-anchor="middle" fill="#fb923c" font-size="9.5" font-weight="bold">QSFP  ConnectX-7  RDMA</text>
+
+  <!-- Lines from nodes to cable -->
+  <line x1="430" y1="540" x2="430" y2="649" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="530" y1="540" x2="530" y2="649" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Endpoint dots -->
+  <circle cx="430" cy="540" r="4" fill="#f97316"/>
+  <circle cx="530" cy="540" r="4" fill="#f97316"/>
+
+  <!-- Bandwidth label -->
+  <text x="480" y="686" text-anchor="middle" fill="#78350f" font-size="9">400 Gbps theoretical  ·  currently TCP via Flannel (future: RDMA/RoCE with RKE2+Cilium)</text>
+
+  <!-- ═══ LEGEND ═══ -->
+  <rect x="34" y="660" width="380" height="30" rx="6" fill="#111827" stroke="#374151" stroke-width="1"/>
+  <rect x="46" y="670" width="10" height="10" rx="2" fill="#6366f1"/>
+  <text x="62" y="679" fill="#818cf8" font-size="9">Hardware</text>
+  <rect x="110" y="670" width="10" height="10" rx="2" fill="#4ade80"/>
+  <text x="126" y="679" fill="#6ee7b7" font-size="9">OS/CUDA</text>
+  <rect x="185" y="670" width="10" height="10" rx="2" fill="#818cf8"/>
+  <text x="201" y="679" fill="#a5b4fc" font-size="9">Kubernetes</text>
+  <rect x="268" y="670" width="10" height="10" rx="2" fill="#fbbf24"/>
+  <text x="284" y="679" fill="#fde68a" font-size="9">GPU Operator</text>
+  <rect x="360" y="670" width="10" height="10" rx="2" fill="#f472b6"/>
+  <text x="376" y="679" fill="#f9a8d4" font-size="9">Workloads</text>
+
+</svg>

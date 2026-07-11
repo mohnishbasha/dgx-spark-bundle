@@ -1,0 +1,34 @@
+# DGX Spark Bundle — Open Technical Books
+
+> Open technical books on AI infrastructure, GPU computing, and distributed systems by Mohinish Shaikh and collaborators. Published by Serverless Ventures LLC.
+
+## Books
+
+- [From Box to Cluster](https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/): Complete step-by-step guide to building a personal AI supercomputer cluster from two NVIDIA DGX Spark units. Covers hardware setup, CUDA 13.0, k3s Kubernetes, GPU Operator, KubeRay, vLLM tensor parallelism, AIBrix gateway, and Prometheus/Grafana monitoring.
+
+## About
+
+- [Books Catalog](https://mohnishbasha.github.io/dgx-spark-bundle/): Landing page listing all published books.
+- [GitHub Repository](https://github.com/mohnishbasha/dgx-spark-bundle): Source code, configuration files, and build scripts.
+
+## Authors
+
+- Mohinish Shaikh — AI infrastructure engineer. GitHub: github.com/mohnishbasha, LinkedIn: linkedin.com/in/mohinishbasha
+- Sanwi Sarode — AI systems engineer. LinkedIn: linkedin.com/in/sanwi-sarode-785b0b282
+
+## Key Topics Covered
+
+- NVIDIA DGX Spark Bundle (2× GB10 Blackwell, 256 GB unified GPU memory)
+- k3s lightweight Kubernetes on ARM64
+- NVIDIA GPU Operator installation via Helm
+- KubeRay operator and RayCluster deployment
+- ARM64-native container images for Ray (nvcr.io/nvidia/vllm:25.09-py3)
+- vLLM with tensor-parallel-size 2 across two nodes
+- AIBrix AI inference gateway for multi-tenancy and routing
+- Prometheus + Grafana + DCGM Exporter for GPU monitoring
+- iptables persistence to prevent SSH loss after k3s restart
+- Models: Qwen2.5-7B, Qwen2.5-72B, Llama 3.3 70B, Llama 405B (quantized)
+
+## License
+
+Creative Commons Attribution 4.0 International (CC BY 4.0)
