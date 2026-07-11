@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 4: k3s Kubernetes — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 4: Setting up k3s Kubernetes on NVIDIA DGX Spark. Install k3s master, join worker node, configure Helm, deploy NVIDIA GPU Operator, and create namespaces.">
+  <meta name="keywords" content="k3s Kubernetes DGX Spark, NVIDIA GPU Operator Helm, Kubernetes ARM64, k3s worker join, GPU device plugin, Helm install GPU operator">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-04.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 4: k3s Kubernetes — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="k3s installation, worker join, Helm, and NVIDIA GPU Operator on DGX Spark ARM64.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-04.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 4: k3s Kubernetes — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Kubernetes Cluster with k3s",
+    "position": 4,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-04.html",
+    "isPartOf": { "@type": "Book", "name": "From Box to Cluster", "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Sanwi Sarode" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 4: k3s Kubernetes", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-04.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 4: k3s Kubernetes</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-4" class="chapter-section" aria-labelledby="ch4-title">
+            <div class="chapter-label">Chapter 4 · Part I</div>
+            <h1 id="ch4-title">Kubernetes Cluster with k3s</h1>
+
+            <p><a href="https://k3s.io" rel="noopener" target="_blank">k3s</a> is a lightweight, production-grade Kubernetes distribution by Rancher (SUSE). It packages the full Kubernetes control plane into a single binary under 100 MB, stripping components unnecessary for edge and small-cluster deployments. k3s is ideal for DGX Spark Bundle: you get complete Kubernetes API compatibility with minimal system overhead, leaving the bulk of CPU and memory free for GPU workloads.</p>
+
+            <div id="ch4-install">
+              <h2>Install k3s on Spark 1 (Master)</h2>
+              <pre><code>curl -sfL https://get.k3s.io | \
+  INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --disable=traefik" \
+  sh -</code></pre>
+
+              <h2>Configure kubectl</h2>
+              <pre><code>export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.bashrc</code></pre>
+
+              <h2>Get the Join Token</h2>
+              <pre><code>sudo cat /var/lib/rancher/k3s/server/node-token</code></pre>
+
+              <h2>Join Spark 2 as Worker</h2>
+              <pre><code>curl -sfL https://get.k3s.io | \
+  K3S_URL=https://192.168.86.30:6443 \
+  K3S_TOKEN=&lt;TOKEN_FROM_SPARK1&gt; \
+  sh -</code></pre>
+
+              <h2>Assign Worker Role Label</h2>
+              <pre><code>kubectl label node spark-7229 node-role.kubernetes.io/worker=worker</code></pre>
+
+              <h2>Verify Cluster</h2>
+              <pre><code>kubectl get nodes
+# Expected:
+# NAME         STATUS   ROLES                  VERSION
+# spark-720e   Ready    control-plane,master   v1.35.5+k3s1
+# spark-7229   Ready    worker                 v1.35.5+k3s1</code></pre>
+
+              <h2>Install Helm</h2>
+              <pre><code>curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version</code></pre>
+            </div>
+
+            <div id="ch4-gpu">
+              <h2>NVIDIA GPU Operator</h2>
+              <pre><code>helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
+
+helm install gpu-operator nvidia/gpu-operator \
+  --namespace gpu-operator \
+  --create-namespace</code></pre>
+
+              <pre><code># Verify both GPUs visible
+kubectl get nodes -o json | grep '"nvidia.com/gpu":'
+# Expected: "nvidia.com/gpu": "1"  (one per node)
+
+kubectl get nodes -o json | grep "nvidia.com/gpu.family"
+# Expected: "nvidia.com/gpu.family": "blackwell"</code></pre>
+
+              <h2>Create Namespaces</h2>
+              <pre><code>kubectl create namespace core-services
+kubectl create namespace monitoring</code></pre>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="chapter-03.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Ch 3: CUDA Updates</span></div>
+              </a>
+              <a href="chapter-05.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Next Chapter</span><span class="nav-btn-title">Ch 5: KubeRay →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>

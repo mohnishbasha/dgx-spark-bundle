@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 6: vLLM Inference — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 6: vLLM inference engine on NVIDIA DGX Spark. Tensor parallelism configuration, startup time, key flags, API verification, and supported models on 256GB GPU memory.">
+  <meta name="keywords" content="vLLM DGX Spark, tensor parallel size 2, vLLM tensor parallelism, LLM inference Kubernetes, Qwen2.5 vLLM, Llama 70B inference, vLLM OpenAI API, gpu-memory-utilization">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-06.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 6: vLLM Inference — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="vLLM tensor parallelism, configuration flags, API verification, and model support on DGX Spark Bundle.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-06.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 6: vLLM Inference — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "vLLM Inference Engine",
+    "position": 6,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-06.html",
+    "isPartOf": { "@type": "Book", "name": "From Box to Cluster", "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Sanwi Sarode" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 6: vLLM Inference", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-06.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 6: vLLM</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-6" class="chapter-section" aria-labelledby="ch6-title">
+            <div class="chapter-label">Chapter 6 · Part II</div>
+            <h1 id="ch6-title">vLLM Inference Engine</h1>
+
+            <p><a href="https://docs.vllm.ai" rel="noopener" target="_blank">vLLM</a> is a high-throughput inference engine for large language models, built around PagedAttention — a memory management technique that eliminates KV-cache fragmentation and dramatically increases GPU utilization. It exposes an OpenAI-compatible REST API and supports tensor parallelism across multiple GPUs, making it the model-serving engine of choice on the DGX Spark Bundle cluster.</p>
+
+            <h2>Startup Time Expectations</h2>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Scenario</th><th>Time</th></tr></thead>
+                <tbody>
+                  <tr><td>First startup (14GB model download)</td><td>~25 minutes</td></tr>
+                  <tr><td>Subsequent startups (cached)</td><td>3–5 minutes</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="ch6-flags">
+              <h2>Key vLLM Configuration Flags</h2>
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Flag</th><th>Value</th><th>Purpose</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>--tensor-parallel-size</code></td><td>2</td><td>One rank per GPU/node</td></tr>
+                    <tr><td><code>--distributed-executor-backend</code></td><td>ray</td><td>Use Ray for distribution</td></tr>
+                    <tr><td><code>--gpu-memory-utilization</code></td><td>0.85</td><td>85% GPU for KV cache</td></tr>
+                    <tr><td><code>--max-num-seqs</code></td><td>4</td><td>Max concurrent sequences</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <h2>Monitor Startup</h2>
+            <pre><code>kubectl logs -n core-services \
+  -l ray.io/node-type=head \
+  --follow
+# Wait for: "Application startup complete."</code></pre>
+
+            <div id="ch6-verify">
+              <h2>Verification</h2>
+              <pre><code>HEAD=$(kubectl get pods -n core-services -l ray.io/node-type=head -o name | head -1)
+
+# List models
+kubectl exec -n core-services $HEAD -- \
+  curl -s http://localhost:8000/v1/models
+
+# Test chat completion
+kubectl exec -n core-services $HEAD -- \
+  curl -s http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "messages": [{"role": "user", "content": "What is tensor parallelism?"}],
+    "max_tokens": 100
+  }'</code></pre>
+            </div>
+
+            <h2>Models You Can Serve</h2>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Model</th><th>HuggingFace ID</th><th>Notes</th></tr></thead>
+                <tbody>
+                  <tr><td>Qwen2.5-7B (default)</td><td><code>Qwen/Qwen2.5-7B-Instruct</code></td><td>Fast, fits easily</td></tr>
+                  <tr><td>Qwen2.5-72B</td><td><code>Qwen/Qwen2.5-72B-Instruct</code></td><td>Needs <code>--max-model-len</code></td></tr>
+                  <tr><td>Llama 3.3 70B</td><td><code>meta-llama/Llama-3.3-70B-Instruct</code></td><td>Needs HF access request</td></tr>
+                  <tr><td>Mistral 7B</td><td><code>mistralai/Mistral-7B-Instruct-v0.3</code></td><td>Good alternative</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="chapter-05.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Ch 5: KubeRay</span></div>
+              </a>
+              <a href="chapter-07.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Next Chapter</span><span class="nav-btn-title">Ch 7: AIBrix →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>

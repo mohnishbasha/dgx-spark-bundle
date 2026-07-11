@@ -22,7 +22,7 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/">
 
-  <!-- ── Open Graph (social sharing) ── -->
+  <!-- ── Open Graph ── -->
   <meta property="og:type" content="book">
   <meta property="og:title" content="From Box to Cluster: Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle">
   <meta property="og:description" content="Complete step-by-step guide: from bare DGX Spark hardware to a production AI inference cluster serving large language models with vLLM, Ray, and Kubernetes.">
@@ -40,10 +40,10 @@
   <!-- ── Twitter Card ── -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="From Box to Cluster — DGX Spark Bundle">
-  <meta name="twitter:description" content="Step-by-step ebook: configure two NVIDIA DGX Sparks into a k3s + KubeRay + vLLM + AIBrix AI cluster. By Mohinish Shaikh & Sanwi Sarode.">
+  <meta name="twitter:description" content="Step-by-step ebook: configure two NVIDIA DGX Sparks into a k3s + KubeRay + vLLM + AIBrix AI cluster. By Mohinish Shaikh &amp; Sanwi Sarode.">
   <meta name="twitter:creator" content="@mohinishbasha">
 
-  <!-- ── Structured Data: Book (Schema.org) ── -->
+  <!-- ── Structured Data: Book ── -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -63,88 +63,14 @@
     "keywords": "NVIDIA DGX Spark, AI cluster, vLLM, KubeRay, k3s, AIBrix, Kubernetes, tensor parallelism",
     "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/",
     "hasPart": [
-      { "@type": "Chapter", "name": "Introduction: What You Are Building", "position": 1 },
-      { "@type": "Chapter", "name": "Hardware Setup and First Boot", "position": 2 },
-      { "@type": "Chapter", "name": "CUDA and System Updates", "position": 3 },
-      { "@type": "Chapter", "name": "Kubernetes Cluster with k3s", "position": 4 },
-      { "@type": "Chapter", "name": "KubeRay for Distributed AI", "position": 5 },
-      { "@type": "Chapter", "name": "vLLM Inference Engine", "position": 6 },
-      { "@type": "Chapter", "name": "AIBrix AI Gateway", "position": 7 },
-      { "@type": "Chapter", "name": "Cluster Overview and Monitoring", "position": 8 }
-    ]
-  }
-  </script>
-
-  <!-- ── Structured Data: FAQ (AEO — Answer Engine Optimization) ── -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is the NVIDIA DGX Spark Bundle?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The NVIDIA DGX Spark Bundle is two DGX Spark personal AI supercomputers sold together. Each unit has a Grace Blackwell GB10 GPU with 128GB of unified memory and a 20-core ARM64 CPU. Combined, the bundle provides 256GB of total GPU memory and 40 CPU cores, connected via a high-speed QSFP RDMA cable using ConnectX-7."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How do you set up a k3s cluster on DGX Spark?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Install k3s on Spark 1 (master) with: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--write-kubeconfig-mode 644 --disable=traefik' sh -. Then get the join token from /var/lib/rancher/k3s/server/node-token and join Spark 2 as a worker with K3S_URL and K3S_TOKEN environment variables set. Do not use the --docker flag; k3s uses containerd natively."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Which Docker image should I use for Ray on DGX Spark (ARM64)?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Use nvcr.io/nvidia/vllm:25.09-py3 — not the standard rayproject/ray image, which is x86-only and will fail with 'exec format error' on DGX Spark's ARM64 architecture. The NVIDIA vLLM image is ARM64-native, includes Ray 2.49.2, vLLM 0.10.1.1, and CUDA 13.0."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How long does vLLM take to start on DGX Spark?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "First startup takes approximately 25 minutes: about 20 minutes to download the 7B model weights from HuggingFace, then 5 minutes for model loading and tensor parallel initialization. Subsequent startups with a cached model take 3-5 minutes."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What is AIBrix and why should I use it with vLLM?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "AIBrix is an open-source AI inference gateway that sits between your AI applications and vLLM. It provides request routing, multi-tenancy with namespace isolation, agent lifecycle management, and GPU utilization-aware scheduling. This allows multiple applications to share one vLLM instance safely, with per-namespace quota enforcement."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What models can you run on two DGX Spark units?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "With 256GB of combined unified memory across two DGX Sparks, you can run models including Qwen2.5-7B-Instruct, Qwen2.5-72B-Instruct, Llama 3.3 70B Instruct, Qwen3-235B-A22B-NVFP4 (quantized), Nemotron-3-Super-120B, and Llama 405B in quantized form. vLLM distributes model weights across both GPUs using tensor parallelism."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How do I fix SSH being blocked after k3s restarts on DGX Spark?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "k3s modifies iptables rules on restart which can block SSH. Flush the rules with: sudo iptables -F && sudo iptables -X && sudo iptables -P INPUT ACCEPT && sudo iptables -P FORWARD ACCEPT && sudo iptables -P OUTPUT ACCEPT. To prevent this permanently, add persistent rules before k3s installation: sudo iptables -I INPUT -s 192.168.86.0/24 -j ACCEPT and save with sudo netfilter-persistent save."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How do you install the NVIDIA GPU Operator on k3s?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Install with Helm: helm repo add nvidia https://helm.ngc.nvidia.com/nvidia && helm repo update && helm install gpu-operator nvidia/gpu-operator --namespace gpu-operator --create-namespace. The operator automatically installs the NVIDIA Container Toolkit, Device Plugin, DCGM Exporter, and GPU Feature Discovery on every node."
-        }
-      }
+      { "@type": "Chapter", "name": "Introduction: What You Are Building", "position": 1, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-01.html" },
+      { "@type": "Chapter", "name": "Hardware Setup and First Boot", "position": 2, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-02.html" },
+      { "@type": "Chapter", "name": "CUDA and System Updates", "position": 3, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-03.html" },
+      { "@type": "Chapter", "name": "Kubernetes Cluster with k3s", "position": 4, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-04.html" },
+      { "@type": "Chapter", "name": "KubeRay for Distributed AI", "position": 5, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-05.html" },
+      { "@type": "Chapter", "name": "vLLM Inference Engine", "position": 6, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-06.html" },
+      { "@type": "Chapter", "name": "AIBrix AI Gateway", "position": 7, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-07.html" },
+      { "@type": "Chapter", "name": "Cluster Overview and Monitoring", "position": 8, "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-08.html" }
     ]
   }
   </script>
@@ -170,15 +96,10 @@
 
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!-- ── Sidebar overlay (mobile) ── -->
   <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
   <div class="layout">
 
-    <!-- ══════════════════════════════════════════
-         SIDEBAR
-    ══════════════════════════════════════════ -->
     <nav class="sidebar" id="sidebar" aria-label="Book navigation">
       <div class="sidebar-header">
         <div class="sidebar-logo">
@@ -187,56 +108,51 @@
         </div>
         <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
       </div>
-
       <div class="sidebar-nav">
         <div class="nav-section-label">Front Matter</div>
-        <a href="#cover" class="nav-item active">Cover &amp; Authors</a>
-        <a href="#preface" class="nav-item">Preface</a>
-        <a href="#toc" class="nav-item">Table of Contents</a>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
 
         <div class="nav-section-label">Part I — Node Setup</div>
-        <a href="#chapter-1" class="nav-item">Ch 1 — Introduction</a>
-        <a href="#ch1-what" class="nav-item nav-sub">What You're Building</a>
-        <a href="#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
 
-        <a href="#chapter-2" class="nav-item">Ch 2 — Hardware Setup</a>
-        <a href="#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
-        <a href="#ch2-network" class="nav-item nav-sub">Network Config</a>
-        <a href="#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
 
-        <a href="#chapter-3" class="nav-item">Ch 3 — CUDA Updates</a>
-        <a href="#chapter-4" class="nav-item">Ch 4 — k3s Kubernetes</a>
-        <a href="#ch4-install" class="nav-item nav-sub">Install k3s</a>
-        <a href="#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
 
         <div class="nav-section-label">Part II — Model Serving</div>
-        <a href="#chapter-5" class="nav-item">Ch 5 — KubeRay</a>
-        <a href="#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
-        <a href="#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
 
-        <a href="#chapter-6" class="nav-item">Ch 6 — vLLM</a>
-        <a href="#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
-        <a href="#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
 
-        <a href="#chapter-7" class="nav-item">Ch 7 — AIBrix Gateway</a>
-        <a href="#chapter-8" class="nav-item">Ch 8 — Monitoring</a>
-        <a href="#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
-        <a href="#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
 
         <div class="nav-section-label">Back Matter</div>
-        <a href="#cheatsheet" class="nav-item">Command Cheatsheet</a>
-        <a href="#troubleshooting" class="nav-item">Troubleshooting</a>
-        <a href="#faq" class="nav-item">FAQ</a>
-        <a href="#authors" class="nav-item">About the Authors</a>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
       </div>
     </nav>
 
-    <!-- ══════════════════════════════════════════
-         MAIN
-    ══════════════════════════════════════════ -->
     <div class="main">
 
-      <!-- Top bar -->
       <div class="topbar" role="banner">
         <div class="topbar-left">
           <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
@@ -245,7 +161,9 @@
             </svg>
           </button>
           <nav class="breadcrumb" aria-label="Breadcrumb">
-            Serverless Ventures / DGX Spark Bundle / <span>From Box to Cluster</span>
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <span>From Box to Cluster</span>
           </nav>
         </div>
         <div class="topbar-right">
@@ -262,54 +180,53 @@
 
         <!-- ══ COVER ══ -->
         <section id="cover" class="cover-section gradient-bg" aria-labelledby="book-title">
-          <!-- Decorative orbs (serverlessvc.com style) -->
           <div class="orb" style="width:400px;height:400px;background:#b8e0cc;top:-80px;left:-100px;" aria-hidden="true"></div>
           <div class="orb" style="width:320px;height:320px;background:#bfdbfe;bottom:-60px;right:-80px;" aria-hidden="true"></div>
           <div class="orb" style="width:240px;height:240px;background:#e9d5ff;top:40%;left:50%;transform:translate(-50%,-50%);" aria-hidden="true"></div>
           <div style="position:relative;z-index:1;">
-          <div class="cover-badge">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-              <path d="M7 1l1.5 3 3.5.5-2.5 2.5.6 3.5L7 9l-3.1 1.5.6-3.5L2 4.5 5.5 4z"/>
-            </svg>
-            First Edition · July 2026
+            <div class="cover-badge">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <path d="M7 1l1.5 3 3.5.5-2.5 2.5.6 3.5L7 9l-3.1 1.5.6-3.5L2 4.5 5.5 4z"/>
+              </svg>
+              First Edition · July 2026
+            </div>
+            <h1 class="cover-title" id="book-title">
+              From Box to Cluster:<br><em>Building a Personal AI Supercomputer</em>
+            </h1>
+            <p class="cover-subtitle">
+              with NVIDIA DGX Spark Bundle — from bare hardware to a production inference cluster
+              running large language models on Kubernetes
+            </p>
+            <div class="cover-authors">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M1 12c0-2.2 1.8-4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                <circle cx="10" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M13 12c0-2.2-1.8-4-4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <a href="https://www.linkedin.com/in/mohinishbasha/" target="_blank" rel="author noopener"><strong>Mohinish Shaikh</strong></a>
+              &amp;
+              <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" target="_blank" rel="author noopener"><strong>Sanwi Sarode</strong></a>
+            </div>
+            <div class="cover-stats">
+              <div class="stat-item">
+                <span class="stat-value">8</span>
+                <span class="stat-label">Chapters</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">256 GB</span>
+                <span class="stat-label">Combined GPU Memory</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">2×</span>
+                <span class="stat-label">GB10 Blackwell GPUs</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">7</span>
+                <span class="stat-label">Stack Components</span>
+              </div>
+            </div>
           </div>
-          <h1 class="cover-title" id="book-title">
-            From Box to Cluster:<br><em>Building a Personal AI Supercomputer</em>
-          </h1>
-          <p class="cover-subtitle">
-            with NVIDIA DGX Spark Bundle — from bare hardware to a production inference cluster
-            running large language models on Kubernetes
-          </p>
-          <div class="cover-authors">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle cx="5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M1 12c0-2.2 1.8-4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              <circle cx="10" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M13 12c0-2.2-1.8-4-4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-            </svg>
-            <a href="https://www.linkedin.com/in/mohinishbasha/" target="_blank" rel="author noopener"><strong>Mohinish Shaikh</strong></a>
-            &amp;
-            <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" target="_blank" rel="author noopener"><strong>Sanwi Sarode</strong></a>
-          </div>
-          <div class="cover-stats">
-            <div class="stat-item">
-              <span class="stat-value">8</span>
-              <span class="stat-label">Chapters</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">256 GB</span>
-              <span class="stat-label">Combined GPU Memory</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">2×</span>
-              <span class="stat-label">GB10 Blackwell GPUs</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">7</span>
-              <span class="stat-label">Stack Components</span>
-            </div>
-          </div>
-          </div><!-- /z-index wrapper -->
         </section>
 
         <div class="content-area">
@@ -360,10 +277,10 @@
               <table>
                 <thead><tr><th>Chapter</th><th>Title</th><th>Key Topics</th></tr></thead>
                 <tbody>
-                  <tr><td>1</td><td><a href="#chapter-1">Introduction — What You Are Building</a></td><td>Architecture, software stack, namespace layout</td></tr>
-                  <tr><td>2</td><td><a href="#chapter-2">Hardware Setup and First Boot</a></td><td>Physical setup, static IPs, SSH, Docker</td></tr>
-                  <tr><td>3</td><td><a href="#chapter-3">CUDA and System Updates</a></td><td>DGX Dashboard, CUDA 13.0, driver updates</td></tr>
-                  <tr><td>4</td><td><a href="#chapter-4">Kubernetes Cluster with k3s</a></td><td>k3s, worker join, Helm, GPU Operator</td></tr>
+                  <tr><td>1</td><td><a href="chapter-01.html">Introduction — What You Are Building</a></td><td>Architecture, software stack, namespace layout</td></tr>
+                  <tr><td>2</td><td><a href="chapter-02.html">Hardware Setup and First Boot</a></td><td>Physical setup, static IPs, SSH, Docker</td></tr>
+                  <tr><td>3</td><td><a href="chapter-03.html">CUDA and System Updates</a></td><td>DGX Dashboard, CUDA 13.0, driver updates</td></tr>
+                  <tr><td>4</td><td><a href="chapter-04.html">Kubernetes Cluster with k3s</a></td><td>k3s, worker join, Helm, GPU Operator</td></tr>
                 </tbody>
               </table>
             </div>
@@ -373,871 +290,41 @@
               <table>
                 <thead><tr><th>Chapter</th><th>Title</th><th>Key Topics</th></tr></thead>
                 <tbody>
-                  <tr><td>5</td><td><a href="#chapter-5">KubeRay for Distributed AI</a></td><td>KubeRay operator, ARM64 image, RayCluster</td></tr>
-                  <tr><td>6</td><td><a href="#chapter-6">vLLM Inference Engine</a></td><td>Tensor parallelism, API verification, models</td></tr>
-                  <tr><td>7</td><td><a href="#chapter-7">AIBrix AI Gateway</a></td><td>Routing, multi-tenancy, ModelAdapter</td></tr>
-                  <tr><td>8</td><td><a href="#chapter-8">Cluster Overview and Monitoring</a></td><td>Grafana, GPU metrics, roadmap</td></tr>
+                  <tr><td>5</td><td><a href="chapter-05.html">KubeRay for Distributed AI</a></td><td>KubeRay operator, ARM64 image, RayCluster</td></tr>
+                  <tr><td>6</td><td><a href="chapter-06.html">vLLM Inference Engine</a></td><td>Tensor parallelism, API verification, models</td></tr>
+                  <tr><td>7</td><td><a href="chapter-07.html">AIBrix AI Gateway</a></td><td>Routing, multi-tenancy, ModelAdapter</td></tr>
+                  <tr><td>8</td><td><a href="chapter-08.html">Cluster Overview and Monitoring</a></td><td>Grafana, GPU metrics, roadmap</td></tr>
                 </tbody>
               </table>
             </div>
-          </section>
 
-          <!-- ══ CHAPTER 1 ══ -->
-          <section id="chapter-1" class="chapter-section" aria-labelledby="ch1-title">
-            <div class="chapter-label">Chapter 1 · Part I</div>
-            <h1 id="ch1-title">Introduction: What You Are Building</h1>
-
-            <div id="ch1-what">
-              <h2>The DGX Spark Bundle</h2>
-              <p>The NVIDIA DGX Spark Bundle is two DGX Spark personal AI supercomputers sold together with everything needed to link them into a single distributed cluster.</p>
-
-              <div class="table-wrapper">
-                <table>
-                  <thead><tr><th>Resource</th><th>Per Spark</th><th>Combined</th></tr></thead>
-                  <tbody>
-                    <tr><td>GPU</td><td>1× NVIDIA GB10 Blackwell</td><td>2× GPUs</td></tr>
-                    <tr><td>GPU Memory</td><td>128GB unified</td><td>256GB unified</td></tr>
-                    <tr><td>CPU Cores</td><td>20 (ARM64)</td><td>40 cores</td></tr>
-                    <tr><td>Interconnect</td><td>—</td><td>ConnectX-7 RDMA (QSFP)</td></tr>
-                    <tr><td>OS</td><td colspan="2">DGX OS (Ubuntu 24.04.4 LTS)</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div id="ch1-stack">
-              <h2>Software Stack</h2>
-              <div class="stack-grid">
-                <div class="stack-card">
-                  <span class="stack-card-icon">🐧</span>
-                  <div class="stack-card-name">DGX OS</div>
-                  <div class="stack-card-desc">Ubuntu 24.04.4 LTS with NVIDIA-optimized kernel and CUDA 13.0</div>
-                  <span class="stack-card-version">Kernel 6.17</span>
-                </div>
-                <div class="stack-card">
-                  <span class="stack-card-icon">☸️</span>
-                  <div class="stack-card-name">k3s</div>
-                  <div class="stack-card-desc">Lightweight Kubernetes — full API, minimal footprint, containerd runtime</div>
-                  <span class="stack-card-version">v1.35.5</span>
-                </div>
-                <div class="stack-card">
-                  <span class="stack-card-icon">🎮</span>
-                  <div class="stack-card-name">GPU Operator</div>
-                  <div class="stack-card-desc">Automatically deploys device plugin, DCGM exporter, container toolkit</div>
-                  <span class="stack-card-version">NVIDIA Helm</span>
-                </div>
-                <div class="stack-card">
-                  <span class="stack-card-icon">⚡</span>
-                  <div class="stack-card-name">KubeRay</div>
-                  <div class="stack-card-desc">Kubernetes operator managing the distributed Ray cluster lifecycle</div>
-                  <span class="stack-card-version">Ray 2.49.2</span>
-                </div>
-                <div class="stack-card">
-                  <span class="stack-card-icon">🤖</span>
-                  <div class="stack-card-name">vLLM</div>
-                  <div class="stack-card-desc">High-performance LLM inference — PagedAttention, tensor parallelism, OpenAI API</div>
-                  <span class="stack-card-version">0.10.1.1</span>
-                </div>
-                <div class="stack-card">
-                  <span class="stack-card-icon">🔀</span>
-                  <div class="stack-card-name">AIBrix</div>
-                  <div class="stack-card-desc">AI inference gateway — routing, multi-tenancy, agent lifecycle management</div>
-                  <span class="stack-card-version">v0.6.0</span>
-                </div>
-              </div>
-
-              <h2>Cluster Architecture</h2>
-              <pre class="arch-diagram">
-                     ┌──────────────────────────────┐
-                     │   Your Network (192.168.86.x) │
-                     └──────────┬───────────┬────────┘
-                                │           │
-              ┌─────────────────┴─┐       ┌─┴──────────────────┐
-              │   Spark 1          │       │   Spark 2           │
-              │   192.168.86.30    │       │   192.168.86.26     │
-              │   spark-720e       │       │   spark-7229        │
-              │                    │       │                     │
-              │  k3s master        │       │  k3s worker         │
-              │  Ray head pod      │       │  Ray worker pod     │
-              │  vLLM API server   │       │  Tensor parallel    │
-              │  KubeRay operator  │       │  rank 1             │
-              │  AIBrix control    │       │                     │
-              │  GB10 GPU rank 0   │       │  GB10 GPU rank 1    │
-              └────────┬───────────┘       └──────┬─────────────┘
-                       │                          │
-                       └─────── QSFP RDMA ────────┘
-                                ConnectX-7</pre>
-
-              <h2>Time Estimates</h2>
-              <div class="table-wrapper">
-                <table>
-                  <thead><tr><th>Chapter</th><th>Estimated Time</th></tr></thead>
-                  <tbody>
-                    <tr><td>Hardware Setup</td><td>60–90 min</td></tr>
-                    <tr><td>CUDA Updates</td><td>30–60 min</td></tr>
-                    <tr><td>k3s + GPU Operator</td><td>20–30 min</td></tr>
-                    <tr><td>KubeRay</td><td>15–20 min</td></tr>
-                    <tr><td>vLLM (incl. model download)</td><td>30–60 min</td></tr>
-                    <tr><td>AIBrix</td><td>10–15 min</td></tr>
-                    <tr><td>Monitoring</td><td>20–30 min</td></tr>
-                    <tr><td><strong>Total</strong></td><td><strong>3–5 hours</strong></td></tr>
-                  </tbody>
-                </table>
-              </div>
+            <h3>Back Matter</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Section</th><th>Contents</th></tr></thead>
+                <tbody>
+                  <tr><td><a href="cheatsheet.html">Command Cheatsheet</a></td><td>Quick-reference kubectl, vLLM, port-forward, iptables commands</td></tr>
+                  <tr><td><a href="troubleshooting.html">Troubleshooting</a></td><td>SSH loss, GPU visibility, ARM64 errors, model download failures</td></tr>
+                  <tr><td><a href="faq.html">FAQ</a></td><td>Common questions about DGX Spark, models, and cluster setup</td></tr>
+                  <tr><td><a href="authors.html">About the Authors</a></td><td>Mohinish Shaikh and Sanwi Sarode</td></tr>
+                </tbody>
+              </table>
             </div>
 
             <div class="chapter-nav">
               <span></span>
-              <a href="#chapter-2" class="chapter-nav-btn next">
+              <a href="chapter-01.html" class="chapter-nav-btn next">
                 <div>
-                  <span class="nav-btn-label">Next Chapter</span>
-                  <span class="nav-btn-title">Hardware Setup and First Boot →</span>
+                  <span class="nav-btn-label">Start Reading</span>
+                  <span class="nav-btn-title">Ch 1: Introduction →</span>
                 </div>
               </a>
             </div>
-          </section>
-
-          <!-- ══ CHAPTER 2 ══ -->
-          <section id="chapter-2" class="chapter-section" aria-labelledby="ch2-title">
-            <div class="chapter-label">Chapter 2 · Part I</div>
-            <h1 id="ch2-title">Hardware Setup and First Boot</h1>
-
-            <div id="ch2-specs">
-              <h2>Hardware Specifications</h2>
-              <div class="table-wrapper">
-                <table>
-                  <thead><tr><th>Component</th><th>Specification</th></tr></thead>
-                  <tbody>
-                    <tr><td>GPU</td><td>NVIDIA GB10 Blackwell (Grace Blackwell Superchip)</td></tr>
-                    <tr><td>GPU Memory</td><td>128GB unified (shared with CPU)</td></tr>
-                    <tr><td>CPU</td><td>20-core ARM64 (Grace CPU)</td></tr>
-                    <tr><td>Storage</td><td>NVMe SSD</td></tr>
-                    <tr><td>Network</td><td>ConnectX-7 (QSFP, RDMA-capable)</td></tr>
-                    <tr><td>OS</td><td>DGX OS (Ubuntu 24.04.4 LTS)</td></tr>
-                    <tr><td>Kernel</td><td>6.17.0-1018-nvidia</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <h2>Physical Setup</h2>
-            <ol>
-              <li>Connect both Sparks to power — they power on automatically when plugged in</li>
-              <li>Connect a monitor to <strong>Spark 1 only</strong> via HDMI</li>
-              <li>Connect a USB-C hub to Spark 1 and attach keyboard + mouse</li>
-              <li>Connect both Sparks to your router via Ethernet</li>
-              <li>Connect the QSFP cable between the ConnectX-7 ports on each unit</li>
-            </ol>
-            <div class="callout callout-note">
-              <div class="callout-title">USB-C Note</div>
-              The DGX Spark has USB-C ports only. A USB-C to USB-A hub is required for standard keyboards and mice.
-            </div>
-
-            <h2>First Boot Setup Wizard</h2>
-            <ol>
-              <li>Select keyboard layout</li>
-              <li>Accept the license agreement</li>
-              <li>Create your user account (username: <code>moonlit</code> used in this guide)</li>
-              <li>Connect to network (Ethernet recommended)</li>
-              <li>System downloads and installs complete software image automatically</li>
-            </ol>
-            <div class="callout callout-warning">
-              <div class="callout-title">Warning</div>
-              Do <strong>not</strong> power off during the software download step. The download cannot be resumed if interrupted. Allow 15–45 minutes.
-            </div>
-
-            <div id="ch2-network">
-              <h2>Static IP Assignment</h2>
-              <p>Configure static IPs on both Sparks before any Kubernetes setup. Dynamic IPs will break the cluster between sessions.</p>
-              <p><strong>Spark 1 (master):</strong> <code>192.168.86.30</code> | <strong>Spark 2 (worker):</strong> <code>192.168.86.26</code></p>
-
-              <p>On <strong>Spark 1</strong>:</p>
-              <pre><code>sudo nmcli con mod "$(nmcli -g NAME con show --active | head -1)" \
-  ipv4.addresses 192.168.86.30/24 \
-  ipv4.gateway 192.168.86.1 \
-  ipv4.dns 8.8.8.8 \
-  ipv4.method manual
-sudo nmcli con up "$(nmcli -g NAME con show --active | head -1)"</code></pre>
-
-              <p>On <strong>Spark 2</strong>:</p>
-              <pre><code>sudo nmcli con mod "$(nmcli -g NAME con show --active | head -1)" \
-  ipv4.addresses 192.168.86.26/24 \
-  ipv4.gateway 192.168.86.1 \
-  ipv4.dns 8.8.8.8 \
-  ipv4.method manual
-sudo nmcli con up "$(nmcli -g NAME con show --active | head -1)"</code></pre>
-
-              <h3>Persistent iptables Rules</h3>
-              <p>Add these on <strong>both Sparks</strong> before k3s installation to prevent SSH from being blocked after k3s restarts:</p>
-              <pre><code>sudo iptables -I INPUT -s 192.168.86.0/24 -j ACCEPT
-sudo iptables -I FORWARD -s 192.168.86.0/24 -j ACCEPT
-sudo apt install iptables-persistent -y
-sudo netfilter-persistent save</code></pre>
-
-              <h3>SSH Setup on Spark 2</h3>
-              <pre><code># On Spark 2 — switch from socket-activated to persistent SSH
-sudo systemctl stop ssh.socket
-sudo systemctl disable ssh.socket
-sudo systemctl enable ssh
-sudo systemctl start ssh</code></pre>
-              <p>Enable password auth in <code>/etc/ssh/sshd_config</code>: set <code>PasswordAuthentication yes</code>, then <code>sudo systemctl restart ssh</code>.</p>
-              <pre><code># From Spark 1 — verify connection
-ssh moonlit@192.168.86.26</code></pre>
-            </div>
-
-            <div id="ch2-docker">
-              <h2>Docker Configuration</h2>
-              <p>Run on <strong>both Sparks</strong> — configures cgroup v2 mode and NVIDIA runtime:</p>
-              <pre><code>sudo python3 -c "
-import json, os
-path = '/etc/docker/daemon.json'
-d = json.load(open(path)) if os.path.exists(path) else {}
-d['default-cgroupns-mode'] = 'host'
-d['default-runtime'] = 'nvidia'
-d['runtimes'] = {'nvidia': {'path': 'nvidia-container-runtime', 'args': []}}
-json.dump(d, open(path, 'w'), indent=2)
-"
-sudo systemctl restart docker
-sudo usermod -aG docker $USER
-newgrp docker</code></pre>
-            </div>
-
-            <div class="chapter-nav">
-              <a href="#chapter-1" class="chapter-nav-btn">
-                <span>← Ch 1: Introduction</span>
-              </a>
-              <a href="#chapter-3" class="chapter-nav-btn next">
-                <span>Ch 3: CUDA Updates →</span>
-              </a>
-            </div>
-          </section>
-
-          <!-- ══ CHAPTER 3 ══ -->
-          <section id="chapter-3" class="chapter-section" aria-labelledby="ch3-title">
-            <div class="chapter-label">Chapter 3 · Part I</div>
-            <h1 id="ch3-title">CUDA and System Updates</h1>
-
-            <h2>Method 1 — DGX Dashboard (Recommended)</h2>
-            <ol>
-              <li>Find <code>dgx-spark-dashboard.desktop</code> on the desktop</li>
-              <li>Right-click → <strong>Allow Launching</strong> (first time only)</li>
-              <li>Double-click to open, or navigate to <code>http://localhost</code></li>
-              <li>Log in → click <strong>"Update Now"</strong></li>
-              <li>Allow system to reboot, then check for updates again — repeat until no more updates appear</li>
-            </ol>
-            <div class="callout callout-note">
-              <div class="callout-title">Normal Behavior</div>
-              Seeing "Update Available" multiple times is expected. Some updates only become visible after previous ones are installed. Keep clicking until the dashboard shows no pending updates.
-            </div>
-
-            <h2>Method 2 — Terminal</h2>
-            <p>Run on both Sparks (directly or via SSH for Spark 2):</p>
-            <pre><code>sudo apt update
-sudo apt dist-upgrade -y
-sudo fwupdmgr refresh
-sudo fwupdmgr upgrade
-sudo reboot</code></pre>
-
-            <h2>Expected Versions After Update</h2>
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Component</th><th>Version</th></tr></thead>
-                <tbody>
-                  <tr><td>OS</td><td>Ubuntu 24.04.4 LTS</td></tr>
-                  <tr><td>Kernel</td><td>6.17.0-1018-nvidia</td></tr>
-                  <tr><td>CUDA Driver</td><td>580.159.03</td></tr>
-                  <tr><td>CUDA Runtime</td><td>13.0</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <pre><code># Verify
-nvidia-smi --query-gpu=driver_version --format=csv,noheader
-# Expected: 580.159.03
-
-nvcc --version
-# Expected: release 13.0</code></pre>
-
-            <div class="chapter-nav">
-              <a href="#chapter-2" class="chapter-nav-btn">← Ch 2: Hardware Setup</a>
-              <a href="#chapter-4" class="chapter-nav-btn next">Ch 4: k3s Kubernetes →</a>
-            </div>
-          </section>
-
-          <!-- ══ CHAPTER 4 ══ -->
-          <section id="chapter-4" class="chapter-section" aria-labelledby="ch4-title">
-            <div class="chapter-label">Chapter 4 · Part I</div>
-            <h1 id="ch4-title">Kubernetes Cluster with k3s</h1>
-
-            <div id="ch4-install">
-              <h2>Install k3s on Spark 1 (Master)</h2>
-              <pre><code>curl -sfL https://get.k3s.io | \
-  INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --disable=traefik" \
-  sh -</code></pre>
-
-              <h2>Configure kubectl</h2>
-              <pre><code>export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.bashrc</code></pre>
-
-              <h2>Get the Join Token</h2>
-              <pre><code>sudo cat /var/lib/rancher/k3s/server/node-token</code></pre>
-
-              <h2>Join Spark 2 as Worker</h2>
-              <pre><code>curl -sfL https://get.k3s.io | \
-  K3S_URL=https://192.168.86.30:6443 \
-  K3S_TOKEN=&lt;TOKEN_FROM_SPARK1&gt; \
-  sh -</code></pre>
-
-              <h2>Assign Worker Role Label</h2>
-              <pre><code>kubectl label node spark-7229 node-role.kubernetes.io/worker=worker</code></pre>
-
-              <h2>Verify Cluster</h2>
-              <pre><code>kubectl get nodes
-# Expected:
-# NAME         STATUS   ROLES                  VERSION
-# spark-720e   Ready    control-plane,master   v1.35.5+k3s1
-# spark-7229   Ready    worker                 v1.35.5+k3s1</code></pre>
-
-              <h2>Install Helm</h2>
-              <pre><code>curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-helm version</code></pre>
-            </div>
-
-            <div id="ch4-gpu">
-              <h2>NVIDIA GPU Operator</h2>
-              <pre><code>helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-helm repo update
-
-helm install gpu-operator nvidia/gpu-operator \
-  --namespace gpu-operator \
-  --create-namespace</code></pre>
-
-              <pre><code># Verify both GPUs visible
-kubectl get nodes -o json | grep '"nvidia.com/gpu":'
-# Expected: "nvidia.com/gpu": "1"  (one per node)
-
-kubectl get nodes -o json | grep "nvidia.com/gpu.family"
-# Expected: "nvidia.com/gpu.family": "blackwell"</code></pre>
-
-              <h2>Create Namespaces</h2>
-              <pre><code>kubectl create namespace core-services
-kubectl create namespace monitoring</code></pre>
-            </div>
-
-            <div class="chapter-nav">
-              <a href="#chapter-3" class="chapter-nav-btn">← Ch 3: CUDA Updates</a>
-              <a href="#chapter-5" class="chapter-nav-btn next">Ch 5: KubeRay →</a>
-            </div>
-          </section>
-
-          <!-- ══ CHAPTER 5 ══ -->
-          <section id="chapter-5" class="chapter-section" aria-labelledby="ch5-title">
-            <div class="chapter-label">Chapter 5 · Part II</div>
-            <h1 id="ch5-title">KubeRay for Distributed AI</h1>
-
-            <div id="ch5-arm64">
-              <div class="callout callout-critical">
-                <div class="callout-title">Critical — ARM64 Architecture Warning</div>
-                The standard Ray image (<code>rayproject/ray</code>) is <strong>x86-only</strong> and will fail on DGX Spark with "exec format error". Always use:
-                <pre><code>nvcr.io/nvidia/vllm:25.09-py3</code></pre>
-                This image is ARM64-native with Ray 2.49.2, vLLM 0.10.1.1, and CUDA 13.0 built in.
-              </div>
-            </div>
-
-            <h2>Install KubeRay Operator</h2>
-            <pre><code>helm repo add kuberay https://ray-project.github.io/kuberay-helm/
-helm repo update
-
-helm install kuberay-operator kuberay/kuberay-operator \
-  --namespace kuberay-system \
-  --create-namespace \
-  --set nodeSelector."kubernetes\\.io/hostname"=spark-720e</code></pre>
-
-            <pre><code>kubectl get pods -n kuberay-system
-# kuberay-operator pod should show Running</code></pre>
-
-            <h2>NGC Registry Login</h2>
-            <pre><code># On both Sparks
-docker login nvcr.io
-# Username: $oauthtoken
-# Password: &lt;YOUR_NGC_API_KEY&gt;</code></pre>
-
-            <h2>HuggingFace Token Secret</h2>
-            <pre><code>kubectl create secret generic hf-token \
-  --from-literal=token=$HF_TOKEN \
-  -n core-services</code></pre>
-
-            <h2>Validate Cross-Node Networking</h2>
-            <pre><code>kubectl run test-spark1 \
-  --image=busybox \
-  --overrides='{"spec":{"nodeSelector":{"kubernetes.io/hostname":"spark-720e"}}}' \
-  --command -- sleep 3600
-
-kubectl run test-spark2 \
-  --image=busybox \
-  --overrides='{"spec":{"nodeSelector":{"kubernetes.io/hostname":"spark-7229"}}}' \
-  --command -- sleep 3600
-
-kubectl get pods -o wide  # get SPARK2_POD_IP
-kubectl exec test-spark1 -- ping -c 4 &lt;SPARK2_POD_IP&gt;
-kubectl delete pod test-spark1 test-spark2</code></pre>
-
-            <div id="ch5-cluster">
-              <h2>Deploy RayCluster</h2>
-              <pre><code>kubectl apply -f - &lt;&lt;'EOF'
-apiVersion: ray.io/v1
-kind: RayCluster
-metadata:
-  name: vllm-cluster
-  namespace: core-services
-spec:
-  rayVersion: '2.49.2'
-  headGroupSpec:
-    rayStartParams:
-      dashboard-host: '0.0.0.0'
-      num-gpus: '1'
-    template:
-      spec:
-        nodeSelector:
-          kubernetes.io/hostname: spark-720e
-        containers:
-        - name: ray-head
-          image: nvcr.io/nvidia/vllm:25.09-py3
-          command: ["/bin/bash", "-c"]
-          args:
-          - |
-            ray start --head \
-              --dashboard-host=0.0.0.0 \
-              --num-gpus=1 \
-              --block &amp;
-            sleep 30
-            python3 -m vllm.entrypoints.openai.api_server \
-              --model Qwen/Qwen2.5-7B-Instruct \
-              --tensor-parallel-size 2 \
-              --distributed-executor-backend ray \
-              --host 0.0.0.0 \
-              --port 8000 \
-              --gpu-memory-utilization 0.85 \
-              --max-num-seqs 4
-          env:
-          - name: HF_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: hf-token
-                key: token
-          resources:
-            limits:
-              nvidia.com/gpu: "1"
-              memory: "100Gi"
-  workerGroupSpecs:
-  - replicas: 1
-    groupName: worker-group
-    rayStartParams:
-      num-gpus: '1'
-    template:
-      spec:
-        nodeSelector:
-          kubernetes.io/hostname: spark-7229
-        containers:
-        - name: ray-worker
-          image: nvcr.io/nvidia/vllm:25.09-py3
-          command: ["/bin/bash", "-c"]
-          args:
-          - |
-            ray start \
-              --address=vllm-cluster-head-svc.core-services.svc.cluster.local:6379 \
-              --num-gpus=1 \
-              --block
-          resources:
-            limits:
-              nvidia.com/gpu: "1"
-              memory: "100Gi"
-EOF</code></pre>
-
-              <h2>Verify Ray Cluster</h2>
-              <pre><code>HEAD=$(kubectl get pods -n core-services -l ray.io/node-type=head -o name | head -1)
-kubectl exec -n core-services $HEAD -- python3 -c \
-  "import ray; ray.init(); print(ray.cluster_resources())"
-# Expected: {'GPU': 2.0, 'CPU': 40.0, 'accelerator_type:GB10': 2.0}</code></pre>
-            </div>
-
-            <div class="chapter-nav">
-              <a href="#chapter-4" class="chapter-nav-btn">← Ch 4: k3s</a>
-              <a href="#chapter-6" class="chapter-nav-btn next">Ch 6: vLLM →</a>
-            </div>
-          </section>
-
-          <!-- ══ CHAPTER 6 ══ -->
-          <section id="chapter-6" class="chapter-section" aria-labelledby="ch6-title">
-            <div class="chapter-label">Chapter 6 · Part II</div>
-            <h1 id="ch6-title">vLLM Inference Engine</h1>
-
-            <h2>Startup Time Expectations</h2>
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Scenario</th><th>Time</th></tr></thead>
-                <tbody>
-                  <tr><td>First startup (14GB model download)</td><td>~25 minutes</td></tr>
-                  <tr><td>Subsequent startups (cached)</td><td>3–5 minutes</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div id="ch6-flags">
-              <h2>Key vLLM Configuration Flags</h2>
-              <div class="table-wrapper">
-                <table>
-                  <thead><tr><th>Flag</th><th>Value</th><th>Purpose</th></tr></thead>
-                  <tbody>
-                    <tr><td><code>--tensor-parallel-size</code></td><td>2</td><td>One rank per GPU/node</td></tr>
-                    <tr><td><code>--distributed-executor-backend</code></td><td>ray</td><td>Use Ray for distribution</td></tr>
-                    <tr><td><code>--gpu-memory-utilization</code></td><td>0.85</td><td>85% GPU for KV cache</td></tr>
-                    <tr><td><code>--max-num-seqs</code></td><td>4</td><td>Max concurrent sequences</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <h2>Monitor Startup</h2>
-            <pre><code>kubectl logs -n core-services \
-  -l ray.io/node-type=head \
-  --follow
-# Wait for: "Application startup complete."</code></pre>
-
-            <div id="ch6-verify">
-              <h2>Verification</h2>
-              <pre><code>HEAD=$(kubectl get pods -n core-services -l ray.io/node-type=head -o name | head -1)
-
-# List models
-kubectl exec -n core-services $HEAD -- \
-  curl -s http://localhost:8000/v1/models
-
-# Test chat completion
-kubectl exec -n core-services $HEAD -- \
-  curl -s http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "Qwen/Qwen2.5-7B-Instruct",
-    "messages": [{"role": "user", "content": "What is tensor parallelism?"}],
-    "max_tokens": 100
-  }'</code></pre>
-            </div>
-
-            <h2>Models You Can Serve</h2>
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Model</th><th>HuggingFace ID</th><th>Notes</th></tr></thead>
-                <tbody>
-                  <tr><td>Qwen2.5-7B (default)</td><td><code>Qwen/Qwen2.5-7B-Instruct</code></td><td>Fast, fits easily</td></tr>
-                  <tr><td>Qwen2.5-72B</td><td><code>Qwen/Qwen2.5-72B-Instruct</code></td><td>Needs <code>--max-model-len</code></td></tr>
-                  <tr><td>Llama 3.3 70B</td><td><code>meta-llama/Llama-3.3-70B-Instruct</code></td><td>Needs HF access request</td></tr>
-                  <tr><td>Mistral 7B</td><td><code>mistralai/Mistral-7B-Instruct-v0.3</code></td><td>Good alternative</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="chapter-nav">
-              <a href="#chapter-5" class="chapter-nav-btn">← Ch 5: KubeRay</a>
-              <a href="#chapter-7" class="chapter-nav-btn next">Ch 7: AIBrix →</a>
-            </div>
-          </section>
-
-          <!-- ══ CHAPTER 7 ══ -->
-          <section id="chapter-7" class="chapter-section" aria-labelledby="ch7-title">
-            <div class="chapter-label">Chapter 7 · Part II</div>
-            <h1 id="ch7-title">AIBrix AI Gateway</h1>
-
-            <h2>What AIBrix Provides</h2>
-            <pre class="arch-diagram">
-AI Applications / Agent Swarms
-        │
-        ▼
-AIBrix Gateway (aibrix-system)
-├── Request routing → selects correct model endpoint
-├── Quota enforcement → per-namespace resource limits
-├── Agent lifecycle → startup, shutdown, resource allocation
-└── GPU optimization → utilization-aware scheduling
-        │
-        ▼
-vLLM API Server (core-services:8000)</pre>
-
-            <h2>Step 1 — Install Dependencies</h2>
-            <pre><code>kubectl apply \
-  -f https://github.com/vllm-project/aibrix/releases/download/v0.6.0/aibrix-dependency-v0.6.0.yaml \
-  --server-side \
-  --force-conflicts</code></pre>
-
-            <h2>Step 2 — Install AIBrix Core</h2>
-            <pre><code>kubectl apply \
-  -f https://github.com/vllm-project/aibrix/releases/download/v0.6.0/aibrix-core-v0.6.0.yaml</code></pre>
-
-            <h2>Verify Components</h2>
-            <pre><code>kubectl get pods -n aibrix-system
-# All 6 pods should show Running:
-# aibrix-controller-manager
-# aibrix-gateway-plugins
-# aibrix-gpu-optimizer
-# aibrix-kuberay-operator
-# aibrix-metadata-service
-# aibrix-redis-master</code></pre>
-
-            <h2>Register a Model (ModelAdapter)</h2>
-            <pre><code>kubectl apply -f - &lt;&lt;'EOF'
-apiVersion: model.aibrix.ai/v1alpha1
-kind: ModelAdapter
-metadata:
-  name: qwen-7b
-  namespace: &lt;your-app-namespace&gt;
-spec:
-  modelName: Qwen/Qwen2.5-7B-Instruct
-  replicas: 1
-  podSelector:
-    matchLabels:
-      ray.io/node-type: head
-EOF</code></pre>
-
-            <div class="chapter-nav">
-              <a href="#chapter-6" class="chapter-nav-btn">← Ch 6: vLLM</a>
-              <a href="#chapter-8" class="chapter-nav-btn next">Ch 8: Monitoring →</a>
-            </div>
-          </section>
-
-          <!-- ══ CHAPTER 8 ══ -->
-          <section id="chapter-8" class="chapter-section" aria-labelledby="ch8-title">
-            <div class="chapter-label">Chapter 8 · Part II</div>
-            <h1 id="ch8-title">Cluster Overview and Monitoring</h1>
-
-            <h2>Install Monitoring Stack</h2>
-            <pre><code>helm repo add prometheus-community \
-  https://prometheus-community.github.io/helm-charts
-helm repo update
-
-helm install monitoring prometheus-community/kube-prometheus-stack \
-  --namespace monitoring</code></pre>
-
-            <div id="ch8-grafana">
-              <h2>Accessing Grafana</h2>
-              <pre><code># Get admin password
-kubectl --namespace monitoring get secrets monitoring-grafana \
-  -o jsonpath="{.data.admin-password}" | base64 -d; echo
-
-# Port-forward
-kubectl --namespace monitoring port-forward \
-  $(kubectl --namespace monitoring get pod \
-    -l "app.kubernetes.io/name=grafana" -o name) 3000
-
-# Open: http://localhost:3000  Login: admin / &lt;password above&gt;</code></pre>
-            </div>
-
-            <div id="ch8-gpu">
-              <h2>GPU Metrics</h2>
-              <div class="table-wrapper">
-                <table>
-                  <thead><tr><th>Metric</th><th>Description</th></tr></thead>
-                  <tbody>
-                    <tr><td><code>DCGM_FI_DEV_GPU_UTIL</code></td><td>GPU compute utilization (%)</td></tr>
-                    <tr><td><code>DCGM_FI_DEV_FB_FREE</code></td><td>Free GPU frame buffer (MiB)</td></tr>
-                    <tr><td><code>DCGM_FI_DEV_FB_USED</code></td><td>Used GPU frame buffer (MiB)</td></tr>
-                    <tr><td><code>DCGM_FI_DEV_POWER_USAGE</code></td><td>GPU power draw (Watts)</td></tr>
-                    <tr><td><code>DCGM_FI_DEV_GPU_TEMP</code></td><td>GPU temperature (°C)</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <h2>Full Cluster Status</h2>
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Layer</th><th>Component</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td>Hardware</td><td>2× DGX Spark (GB10, 128GB each)</td><td>Connected via QSFP</td></tr>
-                  <tr><td>OS</td><td>DGX OS — Ubuntu 24.04.4 LTS</td><td>CUDA 13.0</td></tr>
-                  <tr><td>Kubernetes</td><td>k3s v1.35.5 — 2 nodes Ready</td><td>Flannel CNI</td></tr>
-                  <tr><td>GPU</td><td>NVIDIA GPU Operator</td><td>2 GPUs visible</td></tr>
-                  <tr><td>Distributed</td><td>KubeRay + Ray 2.49.2</td><td>Head + Worker across nodes</td></tr>
-                  <tr><td>Inference</td><td>vLLM 0.10.1.1</td><td>Serving on port 8000</td></tr>
-                  <tr><td>Gateway</td><td>AIBrix v0.6.0</td><td>Routing + multi-tenancy</td></tr>
-                  <tr><td>Monitoring</td><td>Prometheus + Grafana</td><td>GPU metrics via DCGM</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="chapter-nav">
-              <a href="#chapter-7" class="chapter-nav-btn">← Ch 7: AIBrix</a>
-              <a href="#cheatsheet" class="chapter-nav-btn next">Back Matter: Cheatsheet →</a>
-            </div>
-          </section>
-
-          <!-- ══ CHEATSHEET ══ -->
-          <section id="cheatsheet" class="chapter-section" aria-labelledby="cheatsheet-title">
-            <div class="chapter-label">Back Matter</div>
-            <h1 id="cheatsheet-title">Quick Reference — Command Cheatsheet</h1>
-
-            <h2>Cluster Health</h2>
-            <pre><code>kubectl get nodes
-kubectl get pods -A | grep -v Running | grep -v Completed
-kubectl top nodes
-kubectl top pods -A --sort-by=memory</code></pre>
-
-            <h2>vLLM Testing</h2>
-            <pre><code>HEAD=$(kubectl get pods -n core-services -l ray.io/node-type=head -o name | head -1)
-kubectl exec -n core-services $HEAD -- curl -s http://localhost:8000/v1/models
-kubectl logs -n core-services -l ray.io/node-type=head --tail=20</code></pre>
-
-            <h2>Port Forwards</h2>
-            <pre><code># Grafana on :3000
-kubectl -n monitoring port-forward svc/monitoring-grafana 3000:80
-
-# Ray Dashboard on :8265
-HEAD=$(kubectl get pods -n core-services -l ray.io/node-type=head -o name | head -1)
-kubectl port-forward -n core-services $HEAD 8265:8265</code></pre>
-
-            <h2>iptables Recovery</h2>
-            <pre><code>sudo iptables -F && sudo iptables -X
-sudo iptables -P INPUT ACCEPT
-sudo iptables -P FORWARD ACCEPT
-sudo iptables -P OUTPUT ACCEPT
-sudo netfilter-persistent save</code></pre>
-          </section>
-
-          <!-- ══ TROUBLESHOOTING ══ -->
-          <section id="troubleshooting" class="chapter-section" aria-labelledby="troubleshooting-title">
-            <div class="chapter-label">Back Matter</div>
-            <h1 id="troubleshooting-title">Troubleshooting Index</h1>
-
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr></thead>
-                <tbody>
-                  <tr><td>SSH to Spark 2 times out</td><td>iptables blocked after k3s restart</td><td>Flush iptables — see Ch 2</td></tr>
-                  <tr><td>DNS not resolving</td><td>systemd-resolved cache stale</td><td><code>sudo resolvectl flush-caches</code></td></tr>
-                  <tr><td>GPU not visible in k8s</td><td>GPU Operator pods not Running</td><td>Check <code>kubectl get pods -n gpu-operator</code></td></tr>
-                  <tr><td>Ray shows GPU: 1 not 2</td><td>Worker pod not connected</td><td>Check worker logs; verify DNS address</td></tr>
-                  <tr><td>"exec format error"</td><td>x86 image on ARM64</td><td>Use <code>nvcr.io/nvidia/vllm:25.09-py3</code></td></tr>
-                  <tr><td>Model download fails</td><td>HF token missing/invalid</td><td>Check <code>kubectl get secret hf-token -n core-services</code></td></tr>
-                  <tr><td>AIBrix CrashLoopBackOff</td><td>Dependencies not installed first</td><td>Apply <code>aibrix-dependency</code> before <code>aibrix-core</code></td></tr>
-                  <tr><td>NGC image pull fails</td><td>containerd lacks NGC credentials</td><td>Create <code>docker-registry</code> Kubernetes secret — see Ch 5</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- ══ FAQ (AEO) ══ -->
-          <section id="faq" class="chapter-section faq-section" aria-labelledby="faq-title">
-            <div class="chapter-label">Back Matter</div>
-            <h1 class="faq-title" id="faq-title">Frequently Asked Questions</h1>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                What is the NVIDIA DGX Spark Bundle?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                The NVIDIA DGX Spark Bundle is two DGX Spark personal AI supercomputers sold together. Each unit has a Grace Blackwell GB10 GPU with 128GB of unified memory and a 20-core ARM64 CPU. Combined, the bundle provides 256GB of total GPU memory and 40 CPU cores, connected via a high-speed QSFP RDMA cable using ConnectX-7.
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                Which container image should I use for Ray on DGX Spark?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                Use <code>nvcr.io/nvidia/vllm:25.09-py3</code> — not the standard <code>rayproject/ray</code> image, which is x86-only and will fail with "exec format error" on DGX Spark's ARM64 architecture. The NVIDIA vLLM image is ARM64-native and includes Ray 2.49.2, vLLM 0.10.1.1, and CUDA 13.0.
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                How long does vLLM take to start on DGX Spark?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                First startup takes approximately 25 minutes: ~20 minutes to download the 7B model weights from HuggingFace, then ~5 minutes for model loading and tensor parallel initialization. Subsequent startups with a cached model take 3–5 minutes.
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                What models can I run on two DGX Spark units?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                With 256GB of combined unified memory, you can run Qwen2.5-7B-Instruct, Qwen2.5-72B-Instruct, Llama 3.3 70B Instruct, Qwen3-235B-A22B-NVFP4 (quantized), Nemotron-3-Super-120B, and Llama 405B in quantized form. vLLM distributes model weights across both GPUs using tensor parallelism with <code>--tensor-parallel-size 2</code>.
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                How do I fix SSH being blocked after k3s restarts?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                k3s modifies iptables rules on restart. Flush them with:
-                <pre><code>sudo iptables -F && sudo iptables -X
-sudo iptables -P INPUT ACCEPT
-sudo iptables -P FORWARD ACCEPT
-sudo iptables -P OUTPUT ACCEPT</code></pre>
-                To prevent this permanently, add <code>sudo iptables -I INPUT -s 192.168.86.0/24 -j ACCEPT</code> before k3s installation and save with <code>sudo netfilter-persistent save</code>.
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                What is AIBrix and why use it with vLLM?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                AIBrix is an open-source AI inference gateway that provides request routing, multi-tenancy with namespace isolation, agent lifecycle management, and GPU utilization-aware scheduling. It allows multiple applications to safely share one vLLM instance with per-namespace quota enforcement and without exposing vLLM's internal service address to each application.
-              </div>
-            </details>
-
-            <details class="faq-item">
-              <summary class="faq-question">
-                Why k3s instead of full Kubernetes?
-                <svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg>
-              </summary>
-              <div class="faq-answer">
-                k3s provides the full Kubernetes API in a single lightweight binary, eliminating the operational complexity of managing separate control-plane components and etcd. For a 2-node personal cluster, the tradeoff is that Flannel CNI (k3s default) does not support RDMA/RoCE, so NCCL falls back to TCP for cross-GPU communication. A future upgrade to RKE2 + Cilium will enable full RDMA support.
-              </div>
-            </details>
-          </section>
-
-          <!-- ══ ABOUT AUTHORS ══ -->
-          <section id="authors" class="chapter-section" aria-labelledby="authors-title">
-            <div class="chapter-label">Back Matter</div>
-            <h1 id="authors-title">About the Authors</h1>
-
-            <h2>Mohinish Shaikh</h2>
-            <p>Mohinish Shaikh is an AI infrastructure engineer and researcher focused on building high-performance AI systems on commodity and specialized hardware. He has worked across distributed systems, model serving infrastructure, and AI-native application design. His work on the DGX Spark Bundle project explores running production AI workloads on personal supercomputer hardware.</p>
-            <p>
-              GitHub: <a href="https://github.com/mohinishbasha" rel="author noopener" target="_blank">github.com/mohinishbasha</a>
-              &nbsp;·&nbsp;
-              LinkedIn: <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">linkedin.com/in/mohinishbasha</a>
-            </p>
-
-            <h2>Sanwi Sarode</h2>
-            <p>Sanwi Sarode is an AI systems engineer specializing in distributed inference, Kubernetes-native AI infrastructure, and model optimization. Her work spans GPU cluster management, tensor parallelism tuning, and multi-tenant AI platform design. She co-authored this guide based on hands-on experience building and operating the DGX Spark cluster documented in these pages.</p>
-            <p>
-              GitHub: <a href="https://github.com/sanwisarode" rel="author noopener" target="_blank">github.com/sanwisarode</a>
-              &nbsp;·&nbsp;
-              LinkedIn: <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">linkedin.com/in/sanwi-sarode-785b0b282</a>
-            </p>
-
-            <hr style="border: none; border-top: 1px solid var(--color-border); margin: 48px 0;">
-
-            <h2>Project Repository</h2>
-            <p>Full configuration, automation scripts, and updates to this guide:</p>
-            <pre><code>https://github.com/mohinishbasha/dgx-spark-bundle</code></pre>
-
-            <h2>License</h2>
-            <p>This ebook is published under <strong>Creative Commons Attribution 4.0 International (CC BY 4.0)</strong>. You are free to share and adapt the material for any purpose with appropriate attribution.</p>
           </section>
 
         </div><!-- .content-area -->
       </main>
 
-      <!-- Footer -->
       <footer role="contentinfo">
         <p>
           <strong>From Box to Cluster</strong> ·
@@ -1256,63 +343,45 @@ sudo iptables -P OUTPUT ACCEPT</code></pre>
   </div><!-- .layout -->
 
   <script>
-    // ── Sidebar toggle (mobile) ──────────────────────────────────────────────
     const menuBtn = document.getElementById('menu-toggle');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
 
     function openSidebar() {
-      sidebar.classList.add('open');
-      overlay.classList.add('open');
-      menuBtn.setAttribute('aria-expanded', 'true');
-      overlay.setAttribute('aria-hidden', 'false');
+      sidebar.classList.add('open'); overlay.classList.add('open');
+      menuBtn.setAttribute('aria-expanded', 'true'); overlay.setAttribute('aria-hidden', 'false');
     }
-
     function closeSidebar() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-      menuBtn.setAttribute('aria-expanded', 'false');
-      overlay.setAttribute('aria-hidden', 'true');
+      sidebar.classList.remove('open'); overlay.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false'); overlay.setAttribute('aria-hidden', 'true');
     }
-
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-    });
-
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
     overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
 
-    // Close sidebar on nav item click (mobile)
-    sidebar.querySelectorAll('.nav-item').forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth <= 768) closeSidebar();
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => {
+        if ((l.getAttribute('href') || '').split('#')[0] === page) l.classList.add('active');
       });
-    });
+    })();
 
-    // ── Active nav highlight on scroll ─────────────────────────────────────
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-item[href^="#"]');
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          navLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
-          });
-        }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const id = e.target.id;
+        sidebar.querySelectorAll('.nav-item').forEach(l => {
+          const href = l.getAttribute('href') || '';
+          if (href.includes('#')) l.classList.toggle('active', href.split('#')[1] === id);
+        });
       });
     }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
 
-    sections.forEach(section => observer.observe(section));
-
-    // ── Smooth scroll for all anchor links ─────────────────────────────────
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', function(e) {
+        const t = document.querySelector(this.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
     });
   </script>

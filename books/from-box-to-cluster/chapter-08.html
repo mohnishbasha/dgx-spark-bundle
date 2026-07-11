@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 8: Monitoring — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 8: Cluster monitoring on NVIDIA DGX Spark. Install Prometheus and Grafana via Helm, access Grafana dashboard, and monitor GPU metrics with DCGM Exporter (DCGM_FI_DEV_GPU_UTIL, memory, power, temperature).">
+  <meta name="keywords" content="Prometheus DGX Spark, Grafana GPU monitoring, DCGM Exporter, DCGM_FI_DEV_GPU_UTIL, kube-prometheus-stack, GPU memory monitoring, Kubernetes GPU metrics">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-08.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 8: Monitoring — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="Prometheus, Grafana, and DCGM Exporter GPU monitoring for DGX Spark cluster.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-08.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 8: Monitoring — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Cluster Overview and Monitoring",
+    "position": 8,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-08.html",
+    "isPartOf": { "@type": "Book", "name": "From Box to Cluster", "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Sanwi Sarode" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 8: Monitoring", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-08.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 8: Monitoring</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-8" class="chapter-section" aria-labelledby="ch8-title">
+            <div class="chapter-label">Chapter 8 · Part II</div>
+            <h1 id="ch8-title">Cluster Overview and Monitoring</h1>
+
+            <p><a href="https://prometheus.io" rel="noopener" target="_blank">Prometheus</a> is an open-source metrics collection and alerting system that scrapes time-series data from targets such as the NVIDIA GPU Operator and Kubernetes node exporters. <a href="https://grafana.com" rel="noopener" target="_blank">Grafana</a> is the visualization layer that queries Prometheus and renders real-time dashboards. Together they form the standard Kubernetes observability stack, deployed here via the <code>kube-prometheus-stack</code> Helm chart.</p>
+
+            <h2>Install Monitoring Stack</h2>
+            <pre><code>helm repo add prometheus-community \
+  https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring</code></pre>
+
+            <div id="ch8-grafana">
+              <h2>Accessing Grafana</h2>
+              <pre><code># Get admin password
+kubectl --namespace monitoring get secrets monitoring-grafana \
+  -o jsonpath="{.data.admin-password}" | base64 -d; echo
+
+# Port-forward
+kubectl --namespace monitoring port-forward \
+  $(kubectl --namespace monitoring get pod \
+    -l "app.kubernetes.io/name=grafana" -o name) 3000
+
+# Open: http://localhost:3000  Login: admin / &lt;password above&gt;</code></pre>
+            </div>
+
+            <div id="ch8-gpu">
+              <h2>GPU Metrics</h2>
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Metric</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>DCGM_FI_DEV_GPU_UTIL</code></td><td>GPU compute utilization (%)</td></tr>
+                    <tr><td><code>DCGM_FI_DEV_FB_FREE</code></td><td>Free GPU frame buffer (MiB)</td></tr>
+                    <tr><td><code>DCGM_FI_DEV_FB_USED</code></td><td>Used GPU frame buffer (MiB)</td></tr>
+                    <tr><td><code>DCGM_FI_DEV_POWER_USAGE</code></td><td>GPU power draw (Watts)</td></tr>
+                    <tr><td><code>DCGM_FI_DEV_GPU_TEMP</code></td><td>GPU temperature (°C)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <h2>Full Cluster Status</h2>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Layer</th><th>Component</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Hardware</td><td>2× DGX Spark (GB10, 128GB each)</td><td>Connected via QSFP</td></tr>
+                  <tr><td>OS</td><td>DGX OS — Ubuntu 24.04.4 LTS</td><td>CUDA 13.0</td></tr>
+                  <tr><td>Kubernetes</td><td>k3s v1.35.5 — 2 nodes Ready</td><td>Flannel CNI</td></tr>
+                  <tr><td>GPU</td><td>NVIDIA GPU Operator</td><td>2 GPUs visible</td></tr>
+                  <tr><td>Distributed</td><td>KubeRay + Ray 2.49.2</td><td>Head + Worker across nodes</td></tr>
+                  <tr><td>Inference</td><td>vLLM 0.10.1.1</td><td>Serving on port 8000</td></tr>
+                  <tr><td>Gateway</td><td>AIBrix v0.6.0</td><td>Routing + multi-tenancy</td></tr>
+                  <tr><td>Monitoring</td><td>Prometheus + Grafana</td><td>GPU metrics via DCGM</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="chapter-07.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Ch 7: AIBrix</span></div>
+              </a>
+              <a href="cheatsheet.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Back Matter</span><span class="nav-btn-title">Command Cheatsheet →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>

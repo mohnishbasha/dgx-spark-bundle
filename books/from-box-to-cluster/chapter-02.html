@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 2: Hardware Setup — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 2: Hardware setup and first boot of NVIDIA DGX Spark. Physical connections, static IP with nmcli, iptables persistence, SSH configuration, and Docker NVIDIA runtime setup.">
+  <meta name="keywords" content="NVIDIA DGX Spark hardware setup, static IP nmcli, iptables persistent, SSH setup DGX Spark, Docker NVIDIA runtime, ConnectX-7, Grace Blackwell">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-02.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 2: Hardware Setup — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="Physical setup, static IP, SSH, iptables, and Docker NVIDIA runtime configuration for NVIDIA DGX Spark Bundle.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-02.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 2: Hardware Setup — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Hardware Setup and First Boot",
+    "position": 2,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-02.html",
+    "isPartOf": { "@type": "Book", "name": "From Box to Cluster", "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Sanwi Sarode" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 2: Hardware Setup", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-02.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 2: Hardware Setup</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-2" class="chapter-section" aria-labelledby="ch2-title">
+            <div class="chapter-label">Chapter 2 · Part I</div>
+            <h1 id="ch2-title">Hardware Setup and First Boot</h1>
+
+            <div id="ch2-specs">
+              <h2>Hardware Specifications</h2>
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Component</th><th>Specification</th></tr></thead>
+                  <tbody>
+                    <tr><td>GPU</td><td>NVIDIA GB10 Blackwell (Grace Blackwell Superchip)</td></tr>
+                    <tr><td>GPU Memory</td><td>128GB unified (shared with CPU)</td></tr>
+                    <tr><td>CPU</td><td>20-core ARM64 (Grace CPU)</td></tr>
+                    <tr><td>Storage</td><td>NVMe SSD</td></tr>
+                    <tr><td>Network</td><td>ConnectX-7 (QSFP, RDMA-capable)</td></tr>
+                    <tr><td>OS</td><td>DGX OS (Ubuntu 24.04.4 LTS)</td></tr>
+                    <tr><td>Kernel</td><td>6.17.0-1018-nvidia</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <h2>Physical Setup</h2>
+            <ol>
+              <li>Connect both Sparks to power — they power on automatically when plugged in</li>
+              <li>Connect a monitor to <strong>Spark 1 only</strong> via HDMI</li>
+              <li>Connect a USB-C hub to Spark 1 and attach keyboard + mouse</li>
+              <li>Connect both Sparks to your router via Ethernet</li>
+              <li>Connect the QSFP cable between the ConnectX-7 ports on each unit</li>
+            </ol>
+            <div class="callout callout-note">
+              <div class="callout-title">USB-C Note</div>
+              The DGX Spark has USB-C ports only. A USB-C to USB-A hub is required for standard keyboards and mice.
+            </div>
+
+            <h2>First Boot Setup Wizard</h2>
+            <ol>
+              <li>Select keyboard layout</li>
+              <li>Accept the license agreement</li>
+              <li>Create your user account (username: <code>moonlit</code> used in this guide)</li>
+              <li>Connect to network (Ethernet recommended)</li>
+              <li>System downloads and installs complete software image automatically</li>
+            </ol>
+            <div class="callout callout-warning">
+              <div class="callout-title">Warning</div>
+              Do <strong>not</strong> power off during the software download step. The download cannot be resumed if interrupted. Allow 15–45 minutes.
+            </div>
+
+            <div id="ch2-network">
+              <h2>Static IP Assignment</h2>
+              <p>Configure static IPs on both Sparks before any Kubernetes setup. Dynamic IPs will break the cluster between sessions.</p>
+              <p><strong>Spark 1 (master):</strong> <code>192.168.86.30</code> | <strong>Spark 2 (worker):</strong> <code>192.168.86.26</code></p>
+
+              <p>On <strong>Spark 1</strong>:</p>
+              <pre><code>sudo nmcli con mod "$(nmcli -g NAME con show --active | head -1)" \
+  ipv4.addresses 192.168.86.30/24 \
+  ipv4.gateway 192.168.86.1 \
+  ipv4.dns 8.8.8.8 \
+  ipv4.method manual
+sudo nmcli con up "$(nmcli -g NAME con show --active | head -1)"</code></pre>
+
+              <p>On <strong>Spark 2</strong>:</p>
+              <pre><code>sudo nmcli con mod "$(nmcli -g NAME con show --active | head -1)" \
+  ipv4.addresses 192.168.86.26/24 \
+  ipv4.gateway 192.168.86.1 \
+  ipv4.dns 8.8.8.8 \
+  ipv4.method manual
+sudo nmcli con up "$(nmcli -g NAME con show --active | head -1)"</code></pre>
+
+              <h3>Persistent iptables Rules</h3>
+              <p>Add these on <strong>both Sparks</strong> before k3s installation to prevent SSH from being blocked after k3s restarts:</p>
+              <pre><code>sudo iptables -I INPUT -s 192.168.86.0/24 -j ACCEPT
+sudo iptables -I FORWARD -s 192.168.86.0/24 -j ACCEPT
+sudo apt install iptables-persistent -y
+sudo netfilter-persistent save</code></pre>
+
+              <h3>SSH Setup on Spark 2</h3>
+              <pre><code># On Spark 2 — switch from socket-activated to persistent SSH
+sudo systemctl stop ssh.socket
+sudo systemctl disable ssh.socket
+sudo systemctl enable ssh
+sudo systemctl start ssh</code></pre>
+              <p>Enable password auth in <code>/etc/ssh/sshd_config</code>: set <code>PasswordAuthentication yes</code>, then <code>sudo systemctl restart ssh</code>.</p>
+              <pre><code># From Spark 1 — verify connection
+ssh moonlit@192.168.86.26</code></pre>
+            </div>
+
+            <div id="ch2-docker">
+              <h2>Docker Configuration</h2>
+              <p>Run on <strong>both Sparks</strong> — configures cgroup v2 mode and NVIDIA runtime:</p>
+              <pre><code>sudo python3 -c "
+import json, os
+path = '/etc/docker/daemon.json'
+d = json.load(open(path)) if os.path.exists(path) else {}
+d['default-cgroupns-mode'] = 'host'
+d['default-runtime'] = 'nvidia'
+d['runtimes'] = {'nvidia': {'path': 'nvidia-container-runtime', 'args': []}}
+json.dump(d, open(path, 'w'), indent=2)
+"
+sudo systemctl restart docker
+sudo usermod -aG docker $USER
+newgrp docker</code></pre>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="chapter-01.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Ch 1: Introduction</span></div>
+              </a>
+              <a href="chapter-03.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Next Chapter</span><span class="nav-btn-title">Ch 3: CUDA Updates →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 7: AIBrix Gateway — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 7: AIBrix AI gateway on NVIDIA DGX Spark. Install AIBrix dependencies and core, verify components, and register a model with ModelAdapter CRD for multi-tenancy routing.">
+  <meta name="keywords" content="AIBrix AI gateway, AIBrix v0.6.0, ModelAdapter CRD, AI inference gateway, vLLM multi-tenancy, AI request routing, GPU utilization scheduling, aibrix-system">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-07.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 7: AIBrix Gateway — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="AIBrix AI gateway install and ModelAdapter configuration on DGX Spark for multi-tenant vLLM routing.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-07.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 7: AIBrix Gateway — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "AIBrix AI Gateway",
+    "position": 7,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-07.html",
+    "isPartOf": { "@type": "Book", "name": "From Box to Cluster", "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Sanwi Sarode" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 7: AIBrix Gateway", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-07.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 7: AIBrix Gateway</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-7" class="chapter-section" aria-labelledby="ch7-title">
+            <div class="chapter-label">Chapter 7 · Part II</div>
+            <h1 id="ch7-title">AIBrix AI Gateway</h1>
+
+            <p><a href="https://github.com/vllm-project/aibrix" rel="noopener" target="_blank">AIBrix</a> is an open-source AI inference gateway from the vLLM project. It sits in front of one or more vLLM endpoints and adds request routing, per-namespace quota enforcement, agent lifecycle management, and GPU utilization-aware scheduling — turning a raw vLLM API server into a multi-tenant inference platform.</p>
+
+            <h2>What AIBrix Provides</h2>
+              <figure style="margin:1.5rem 0;overflow-x:auto">
+                <svg viewBox="0 0 520 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;display:block;margin:0 auto" role="img" aria-label="AIBrix Gateway request flow architecture">
+                  <defs>
+                    <marker id="ch7arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                      <polygon points="0 0, 8 3, 0 6" fill="#6b7280"/>
+                    </marker>
+                  </defs>
+
+                  <!-- Box 1: AI Applications -->
+                  <rect x="60" y="10" width="400" height="52" rx="8" fill="#f3f4f6" stroke="#374151" stroke-width="1.5"/>
+                  <text x="260" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#111827" font-family="Inter,sans-serif">AI Applications</text>
+                  <text x="260" y="50" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Inter,sans-serif">Agent Swarms &#183; LLM Clients &#183; APIs</text>
+
+                  <!-- Arrow 1 -->
+                  <line x1="260" y1="62" x2="260" y2="95" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ch7arr)"/>
+
+                  <!-- Box 2: AIBrix Gateway -->
+                  <rect x="60" y="97" width="400" height="168" rx="10" fill="#fff" stroke="#1e7350" stroke-width="2"/>
+                  <rect x="60" y="97" width="400" height="50" rx="10" fill="#1e7350"/>
+                  <rect x="60" y="123" width="400" height="24" fill="#1e7350"/>
+                  <text x="260" y="119" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Inter,sans-serif">AIBrix Gateway</text>
+                  <text x="260" y="137" text-anchor="middle" font-size="10" fill="#86efac" font-family="JetBrains Mono,monospace">aibrix-system</text>
+                  <!-- Sub-items -->
+                  <text x="90" y="167" font-size="12" font-weight="600" fill="#1e7350" font-family="Inter,sans-serif">&#9500;  Request routing</text>
+                  <text x="237" y="167" font-size="11" fill="#6b7280" font-family="Inter,sans-serif">&#8212; selects correct model endpoint</text>
+                  <text x="90" y="193" font-size="12" font-weight="600" fill="#1e7350" font-family="Inter,sans-serif">&#9500;  Quota enforcement</text>
+                  <text x="237" y="193" font-size="11" fill="#6b7280" font-family="Inter,sans-serif">&#8212; per-namespace resource limits</text>
+                  <text x="90" y="219" font-size="12" font-weight="600" fill="#1e7350" font-family="Inter,sans-serif">&#9500;  Agent lifecycle</text>
+                  <text x="237" y="219" font-size="11" fill="#6b7280" font-family="Inter,sans-serif">&#8212; startup / shutdown / allocation</text>
+                  <text x="90" y="245" font-size="12" font-weight="600" fill="#1e7350" font-family="Inter,sans-serif">&#9492;  GPU optimization</text>
+                  <text x="237" y="245" font-size="11" fill="#6b7280" font-family="Inter,sans-serif">&#8212; utilization-aware scheduling</text>
+
+                  <!-- Arrow 2 -->
+                  <line x1="260" y1="265" x2="260" y2="295" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ch7arr)"/>
+
+                  <!-- Box 3: vLLM API Server -->
+                  <rect x="60" y="297" width="400" height="52" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+                  <text x="260" y="319" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d" font-family="Inter,sans-serif">vLLM API Server</text>
+                  <text x="260" y="337" text-anchor="middle" font-size="10" fill="#6b7280" font-family="JetBrains Mono,monospace">core-services &#183; :8000</text>
+                </svg>
+                <figcaption style="text-align:center;font-size:12px;color:#6b7280;margin-top:8px">Figure 7.1 &#8212; AIBrix Gateway: request flow</figcaption>
+              </figure>
+
+            <h2>Step 1 — Install Dependencies</h2>
+            <pre><code>kubectl apply \
+  -f https://github.com/vllm-project/aibrix/releases/download/v0.6.0/aibrix-dependency-v0.6.0.yaml \
+  --server-side \
+  --force-conflicts</code></pre>
+
+            <h2>Step 2 — Install AIBrix Core</h2>
+            <pre><code>kubectl apply \
+  -f https://github.com/vllm-project/aibrix/releases/download/v0.6.0/aibrix-core-v0.6.0.yaml</code></pre>
+
+            <h2>Verify Components</h2>
+            <pre><code>kubectl get pods -n aibrix-system
+# All 6 pods should show Running:
+# aibrix-controller-manager
+# aibrix-gateway-plugins
+# aibrix-gpu-optimizer
+# aibrix-kuberay-operator
+# aibrix-metadata-service
+# aibrix-redis-master</code></pre>
+
+            <h2>Register a Model (ModelAdapter)</h2>
+            <pre><code>kubectl apply -f - &lt;&lt;'EOF'
+apiVersion: model.aibrix.ai/v1alpha1
+kind: ModelAdapter
+metadata:
+  name: qwen-7b
+  namespace: &lt;your-app-namespace&gt;
+spec:
+  modelName: Qwen/Qwen2.5-7B-Instruct
+  replicas: 1
+  podSelector:
+    matchLabels:
+      ray.io/node-type: head
+EOF</code></pre>
+
+            <div class="chapter-nav">
+              <a href="chapter-06.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Ch 6: vLLM</span></div>
+              </a>
+              <a href="chapter-08.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Next Chapter</span><span class="nav-btn-title">Ch 8: Monitoring →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>

@@ -15,25 +15,25 @@
   </script>
 
   <!-- ── Primary SEO ── -->
-  <title>Books — Serverless Ventures | AI Infrastructure & GPU Computing</title>
-  <meta name="description" content="Open technical books on AI infrastructure, distributed systems, and GPU computing by Mohinish Shaikh. Hands-on guides for building GPU clusters, vLLM inference, and Kubernetes-native AI platforms.">
-  <meta name="keywords" content="AI infrastructure books, NVIDIA DGX Spark, GPU computing, vLLM, Kubernetes AI, distributed inference, LLM serving, KubeRay, AI supercomputer">
+  <title>NVIDIA DGX Spark Bundle | Technical Library — Serverless Ventures</title>
+  <meta name="description" content="Technical library for NVIDIA DGX Spark Bundle and NVIDIA personal AI hardware. Production-grade guides from first boot to distributed inference cluster — by Serverless Ventures.">
+  <meta name="keywords" content="NVIDIA DGX Spark Bundle, DGX Spark cluster, GB10 Blackwell GPU, vLLM distributed inference, KubeRay, k3s Kubernetes, AIBrix gateway, personal AI supercomputer, NVIDIA technical guide">
   <meta name="author" content="Mohinish Shaikh">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/">
 
   <!-- ── Open Graph ── -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Books — Serverless Ventures | AI Infrastructure & GPU Computing">
-  <meta property="og:description" content="Open technical books on AI infrastructure, distributed systems, and GPU computing. Hands-on guides for building personal AI supercomputers with NVIDIA DGX Spark.">
+  <meta property="og:title" content="NVIDIA DGX Spark Bundle | Technical Library">
+  <meta property="og:description" content="Production-grade technical guides for NVIDIA DGX Spark Bundle. Build and operate a personal AI supercomputer cluster running vLLM, KubeRay, and AIBrix on NVIDIA GB10 Blackwell GPUs.">
   <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/">
   <meta property="og:site_name" content="Serverless Ventures">
   <meta property="og:locale" content="en_US">
 
   <!-- ── Twitter Card ── -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Books — Serverless Ventures | AI Infrastructure">
-  <meta name="twitter:description" content="Open technical books on AI infrastructure and GPU computing. Build personal AI supercomputers with NVIDIA DGX Spark Bundle.">
+  <meta name="twitter:title" content="NVIDIA DGX Spark Bundle Technical Library">
+  <meta name="twitter:description" content="Production guides for DGX Spark Bundle — from first boot to distributed inference cluster. By Serverless Ventures.">
   <meta name="twitter:creator" content="@mohnishbasha">
 
   <!-- ── Structured Data: WebSite ── -->
@@ -41,9 +41,9 @@
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Serverless Ventures — Open Technical Books",
+    "name": "DGX Spark Bundle — NVIDIA Technical Library",
     "url": "https://mohnishbasha.github.io/dgx-spark-bundle/",
-    "description": "Open technical books on AI infrastructure, distributed systems, and GPU computing.",
+    "description": "Technical library for NVIDIA DGX Spark Bundle and subsequent NVIDIA personal AI hardware products.",
     "author": {
       "@type": "Person",
       "name": "Mohinish Shaikh",
@@ -53,11 +53,6 @@
       "@type": "Organization",
       "name": "Serverless Ventures LLC",
       "url": "https://www.serverlessvc.com"
-    },
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://mohnishbasha.github.io/dgx-spark-bundle/?q={search_term_string}",
-      "query-input": "required name=search_term_string"
     }
   }
   </script>
@@ -67,8 +62,8 @@
   {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "AI Infrastructure Books",
-    "description": "Open technical books on AI infrastructure and GPU computing by Serverless Ventures",
+    "name": "NVIDIA DGX Spark Bundle Technical Library",
+    "description": "Technical guides for NVIDIA DGX Spark Bundle and NVIDIA personal AI hardware by Serverless Ventures",
     "url": "https://mohnishbasha.github.io/dgx-spark-bundle/",
     "itemListElement": [
       {
@@ -100,7 +95,7 @@
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
-      { "@type": "ListItem", "position": 2, "name": "Books", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/" }
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/" }
     ]
   }
   </script>
@@ -180,7 +175,7 @@
       overflow: hidden;
       padding: 80px 24px 72px;
       text-align: center;
-      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 50%, #faf5ff 100%);
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0fdf4 100%);
     }
 
     .orb {
@@ -194,7 +189,7 @@
     .hero-inner {
       position: relative;
       z-index: 1;
-      max-width: 600px;
+      max-width: 620px;
       margin: 0 auto;
     }
 
@@ -224,7 +219,7 @@
     .hero p {
       font-size: 17px;
       color: var(--color-muted);
-      max-width: 460px;
+      max-width: 500px;
       margin: 0 auto;
       line-height: 1.7;
     }
@@ -263,6 +258,13 @@
       box-shadow: 0 8px 28px rgba(0,0,0,0.08);
       border-color: #d1d5db;
       transform: translateY(-2px);
+    }
+
+    .book-card.coming-soon {
+      opacity: 0.6;
+      border-style: dashed;
+      cursor: default;
+      pointer-events: none;
     }
 
     .book-spine {
@@ -366,6 +368,8 @@
 
     .book-card:hover .book-cta { background: #374151; }
 
+    .book-cta.muted { background: #9ca3af; }
+
     /* ── Footer ── */
     .site-footer {
       border-top: 1px solid var(--color-border);
@@ -396,8 +400,8 @@
 
   <header class="site-header">
     <a href="/" class="site-logo">
-      <span class="site-logo-mark">SV</span>
-      <span class="site-logo-text">Books</span>
+      <span class="site-logo-mark">NVIDIA</span>
+      <span class="site-logo-text">DGX Spark Bundle</span>
     </a>
     <nav class="header-links">
       <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">serverlessvc.com</a>
@@ -407,33 +411,33 @@
 
   <section class="hero">
     <div class="orb" style="width:380px;height:380px;background:#b8e0cc;top:-80px;left:-80px;"></div>
-    <div class="orb" style="width:300px;height:300px;background:#bfdbfe;bottom:-60px;right:-60px;"></div>
-    <div class="orb" style="width:220px;height:220px;background:#e9d5ff;top:35%;left:55%;transform:translate(-50%,-50%);"></div>
+    <div class="orb" style="width:300px;height:300px;background:#bbf7d0;bottom:-60px;right:-60px;"></div>
+    <div class="orb" style="width:220px;height:220px;background:#a7f3d0;top:35%;left:55%;transform:translate(-50%,-50%);"></div>
     <div class="hero-inner">
       <div class="hero-badge">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.1 2.9 3 .3-2.2 2 .7 3L5 6.7 2.4 8.2l.7-3L.9 3.2l3-.3z"/></svg>
-        Open Technical Books
+        NVIDIA DGX Spark Bundle
       </div>
-      <h1>AI Infrastructure,<br>From First Principles</h1>
-      <p>Hands-on, production-grade guides for building GPU clusters, distributed inference, and AI-native platforms.</p>
+      <h1>DGX Spark Bundle<br>Technical Library</h1>
+      <p>Production-grade technical guides for NVIDIA DGX Spark Bundle and NVIDIA personal AI hardware — from first boot to distributed inference cluster.</p>
     </div>
   </section>
 
   <main class="books-section">
-    <div class="section-label">Published · 1 book</div>
+    <div class="section-label">NVIDIA DGX · Published · 1 book</div>
 
     <a href="books/from-box-to-cluster/" class="book-card">
       <div class="book-spine">
         <span class="book-spine-badge">NVIDIA</span>
-        <span class="book-spine-icon">⚡</span>
+        <span class="book-spine-icon">&#9889;</span>
         <span class="book-spine-ed">Ed. 1</span>
       </div>
       <div class="book-body">
         <div class="book-tags">
-          <span class="book-tag">AI Infrastructure</span>
-          <span class="book-tag">Kubernetes</span>
+          <span class="book-tag">DGX Spark Bundle</span>
+          <span class="book-tag">GB10 Blackwell</span>
           <span class="book-tag">vLLM</span>
-          <span class="book-tag">DGX Spark</span>
+          <span class="book-tag">KubeRay</span>
         </div>
         <div class="book-title">From Box to Cluster</div>
         <div class="book-subtitle">Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle — from bare hardware to a production inference cluster running large language models on Kubernetes.</div>
@@ -441,7 +445,7 @@
         <div class="book-stats">
           <div class="book-stat"><span class="book-stat-value">8</span><span class="book-stat-label">Chapters</span></div>
           <div class="book-stat"><span class="book-stat-value">256 GB</span><span class="book-stat-label">GPU Memory</span></div>
-          <div class="book-stat"><span class="book-stat-value">2×</span><span class="book-stat-label">GB10 GPUs</span></div>
+          <div class="book-stat"><span class="book-stat-value">2&#215;</span><span class="book-stat-label">GB10 GPUs</span></div>
           <div class="book-stat"><span class="book-stat-value">7</span><span class="book-stat-label">Stack Components</span></div>
         </div>
         <span class="book-cta">
@@ -450,14 +454,32 @@
         </span>
       </div>
     </a>
+
+    <div class="book-card coming-soon">
+      <div class="book-spine" style="background:linear-gradient(160deg,#374151 0%,#1f2937 100%)">
+        <span class="book-spine-badge">NVIDIA</span>
+        <span class="book-spine-icon" style="font-size:16px;color:#9ca3af;font-family:var(--font-mono)">&#183;&#183;&#183;</span>
+        <span class="book-spine-ed">TBD</span>
+      </div>
+      <div class="book-body">
+        <div class="book-tags">
+          <span class="book-tag">Coming Soon</span>
+          <span class="book-tag">NVIDIA</span>
+        </div>
+        <div class="book-title">Future NVIDIA Hardware Guide</div>
+        <div class="book-subtitle">Subsequent guides covering NVIDIA DGX Station 2, DGX H200, and other NVIDIA personal AI hardware products — in development at Serverless Ventures.</div>
+        <div class="book-meta">Serverless Ventures · In Development</div>
+        <span class="book-cta muted">Coming Soon</span>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer">
     <p>
       <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures LLC</a>
-      &nbsp;·&nbsp;
+      &nbsp;&#183;&nbsp;
       <a href="https://github.com/mohnishbasha/dgx-spark-bundle" target="_blank" rel="noopener">GitHub</a>
-      &nbsp;·&nbsp;
+      &nbsp;&#183;&nbsp;
       Licensed under CC BY 4.0
     </p>
   </footer>

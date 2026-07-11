@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 1: Introduction — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 1: What you are building with the NVIDIA DGX Spark Bundle. Architecture overview, software stack (k3s, KubeRay, vLLM, AIBrix), and time estimates.">
+  <meta name="keywords" content="NVIDIA DGX Spark Bundle, AI cluster architecture, k3s, KubeRay, vLLM, AIBrix, GB10 Blackwell, 256GB GPU memory">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-01.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 1: Introduction — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="What you are building with NVIDIA DGX Spark Bundle: architecture, software stack, and time estimates.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-01.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 1: Introduction — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Introduction: What You Are Building",
+    "position": 1,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-01.html",
+    "isPartOf": {
+      "@type": "Book",
+      "name": "From Box to Cluster",
+      "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/"
+    },
+    "author": [
+      { "@type": "Person", "name": "Mohinish Shaikh" },
+      { "@type": "Person", "name": "Sanwi Sarode" }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 1: Introduction", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-01.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 1: Introduction</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-1" class="chapter-section" aria-labelledby="ch1-title">
+            <div class="chapter-label">Chapter 1 · Part I</div>
+            <h1 id="ch1-title">Introduction: What You Are Building</h1>
+
+            <div id="ch1-what">
+              <h2>The DGX Spark Bundle</h2>
+              <p>The NVIDIA DGX Spark Bundle is two DGX Spark personal AI supercomputers sold together with everything needed to link them into a single distributed cluster.</p>
+
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Resource</th><th>Per Spark</th><th>Combined</th></tr></thead>
+                  <tbody>
+                    <tr><td>GPU</td><td>1× NVIDIA GB10 Blackwell</td><td>2× GPUs</td></tr>
+                    <tr><td>GPU Memory</td><td>128GB unified</td><td>256GB unified</td></tr>
+                    <tr><td>CPU Cores</td><td>20 (ARM64)</td><td>40 cores</td></tr>
+                    <tr><td>Interconnect</td><td>—</td><td>ConnectX-7 RDMA (QSFP)</td></tr>
+                    <tr><td>OS</td><td colspan="2">DGX OS (Ubuntu 24.04.4 LTS)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="ch1-stack">
+              <h2>Software Stack</h2>
+              <div class="stack-grid">
+                <div class="stack-card">
+                  <span class="stack-card-icon">🐧</span>
+                  <div class="stack-card-name">DGX OS</div>
+                  <div class="stack-card-desc">Ubuntu 24.04.4 LTS with NVIDIA-optimized kernel and CUDA 13.0</div>
+                  <span class="stack-card-version">Kernel 6.17</span>
+                </div>
+                <div class="stack-card">
+                  <span class="stack-card-icon">☸️</span>
+                  <div class="stack-card-name">k3s</div>
+                  <div class="stack-card-desc">Lightweight Kubernetes — full API, minimal footprint, containerd runtime</div>
+                  <span class="stack-card-version">v1.35.5</span>
+                </div>
+                <div class="stack-card">
+                  <span class="stack-card-icon">🎮</span>
+                  <div class="stack-card-name">GPU Operator</div>
+                  <div class="stack-card-desc">Automatically deploys device plugin, DCGM exporter, container toolkit</div>
+                  <span class="stack-card-version">NVIDIA Helm</span>
+                </div>
+                <div class="stack-card">
+                  <span class="stack-card-icon">⚡</span>
+                  <div class="stack-card-name">KubeRay</div>
+                  <div class="stack-card-desc">Kubernetes operator managing the distributed Ray cluster lifecycle</div>
+                  <span class="stack-card-version">Ray 2.49.2</span>
+                </div>
+                <div class="stack-card">
+                  <span class="stack-card-icon">🤖</span>
+                  <div class="stack-card-name">vLLM</div>
+                  <div class="stack-card-desc">High-performance LLM inference — PagedAttention, tensor parallelism, OpenAI API</div>
+                  <span class="stack-card-version">0.10.1.1</span>
+                </div>
+                <div class="stack-card">
+                  <span class="stack-card-icon">🔀</span>
+                  <div class="stack-card-name">AIBrix</div>
+                  <div class="stack-card-desc">AI inference gateway — routing, multi-tenancy, agent lifecycle management</div>
+                  <span class="stack-card-version">v0.6.0</span>
+                </div>
+              </div>
+
+              <h2>Cluster Architecture</h2>
+              <figure style="margin:1.5rem 0;overflow-x:auto">
+                <svg viewBox="0 0 720 455" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:0 auto" role="img" aria-label="DGX Spark Bundle two-node cluster architecture diagram">
+                  <defs>
+                    <marker id="ch1arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                      <polygon points="0 0, 8 3, 0 6" fill="#6b7280"/>
+                    </marker>
+                  </defs>
+
+                  <!-- Network bar -->
+                  <rect x="20" y="10" width="680" height="52" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+                  <text x="360" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d" font-family="Inter,sans-serif">Your Network</text>
+                  <text x="360" y="51" text-anchor="middle" font-size="11" fill="#6b7280" font-family="JetBrains Mono,monospace">192.168.86.x</text>
+
+                  <!-- Lines from network to boxes -->
+                  <line x1="185" y1="62" x2="185" y2="94" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ch1arr)"/>
+                  <line x1="535" y1="62" x2="535" y2="94" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ch1arr)"/>
+
+                  <!-- Spark 1 box -->
+                  <rect x="20" y="95" width="330" height="288" rx="10" fill="#fff" stroke="#1e7350" stroke-width="2"/>
+                  <rect x="20" y="95" width="330" height="50" rx="10" fill="#1e7350"/>
+                  <rect x="20" y="121" width="330" height="24" fill="#1e7350"/>
+                  <text x="185" y="116" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Inter,sans-serif">Spark 1 &#8212; k3s Master</text>
+                  <text x="185" y="134" text-anchor="middle" font-size="10" fill="#86efac" font-family="JetBrains Mono,monospace">192.168.86.30 &#183; spark-720e</text>
+                  <!-- Spark 1 GPU badge -->
+                  <rect x="40" y="158" width="290" height="36" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1"/>
+                  <text x="185" y="173" text-anchor="middle" font-size="11" font-weight="700" fill="#15803d" font-family="Inter,sans-serif">GB10 Blackwell GPU &#183; rank 0</text>
+                  <text x="185" y="188" text-anchor="middle" font-size="10" fill="#6b7280" font-family="JetBrains Mono,monospace">128 GB unified memory</text>
+                  <!-- Spark 1 stack -->
+                  <text x="55" y="215" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  Ray Head Pod</text>
+                  <text x="55" y="237" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  vLLM API Server  :8000</text>
+                  <text x="55" y="259" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  KubeRay Operator</text>
+                  <text x="55" y="281" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  AIBrix Control Plane</text>
+                  <text x="55" y="303" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  Prometheus / Grafana</text>
+                  <text x="55" y="325" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  NVIDIA GPU Operator</text>
+
+                  <!-- Spark 2 box -->
+                  <rect x="370" y="95" width="330" height="288" rx="10" fill="#fff" stroke="#1a1a2e" stroke-width="2"/>
+                  <rect x="370" y="95" width="330" height="50" rx="10" fill="#1a1a2e"/>
+                  <rect x="370" y="121" width="330" height="24" fill="#1a1a2e"/>
+                  <text x="535" y="116" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Inter,sans-serif">Spark 2 &#8212; k3s Worker</text>
+                  <text x="535" y="134" text-anchor="middle" font-size="10" fill="#93c5fd" font-family="JetBrains Mono,monospace">192.168.86.26 &#183; spark-7229</text>
+                  <!-- Spark 2 GPU badge -->
+                  <rect x="390" y="158" width="290" height="36" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+                  <text x="535" y="173" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8" font-family="Inter,sans-serif">GB10 Blackwell GPU &#183; rank 1</text>
+                  <text x="535" y="188" text-anchor="middle" font-size="10" fill="#6b7280" font-family="JetBrains Mono,monospace">128 GB unified memory</text>
+                  <!-- Spark 2 stack -->
+                  <text x="405" y="215" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  Ray Worker Pod</text>
+                  <text x="405" y="237" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  Tensor Parallel rank 1</text>
+                  <text x="405" y="259" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  NCCL all-reduce</text>
+                  <text x="405" y="281" font-size="12" fill="#374151" font-family="Inter,sans-serif">&#9679;  k3s agent</text>
+
+                  <!-- RDMA connection -->
+                  <line x1="185" y1="383" x2="185" y2="415" stroke="#ef4444" stroke-width="2"/>
+                  <line x1="535" y1="383" x2="535" y2="415" stroke="#ef4444" stroke-width="2"/>
+                  <line x1="185" y1="415" x2="535" y2="415" stroke="#ef4444" stroke-width="2.5"/>
+                  <rect x="268" y="402" width="184" height="26" rx="5" fill="#fff7ed" stroke="#ef4444" stroke-width="1.5"/>
+                  <text x="360" y="420" text-anchor="middle" font-size="10" font-weight="600" fill="#dc2626" font-family="JetBrains Mono,monospace">QSFP RDMA &#183; ConnectX-7</text>
+                </svg>
+                <figcaption style="text-align:center;font-size:12px;color:#6b7280;margin-top:8px">Figure 1.1 &#8212; DGX Spark Bundle: two-node cluster topology</figcaption>
+              </figure>
+
+              <h2>Time Estimates</h2>
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Chapter</th><th>Estimated Time</th></tr></thead>
+                  <tbody>
+                    <tr><td>Hardware Setup</td><td>60–90 min</td></tr>
+                    <tr><td>CUDA Updates</td><td>30–60 min</td></tr>
+                    <tr><td>k3s + GPU Operator</td><td>20–30 min</td></tr>
+                    <tr><td>KubeRay</td><td>15–20 min</td></tr>
+                    <tr><td>vLLM (incl. model download)</td><td>30–60 min</td></tr>
+                    <tr><td>AIBrix</td><td>10–15 min</td></tr>
+                    <tr><td>Monitoring</td><td>20–30 min</td></tr>
+                    <tr><td><strong>Total</strong></td><td><strong>3–5 hours</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="index.html" class="chapter-nav-btn">
+                <div>
+                  <span class="nav-btn-label">Back to</span>
+                  <span class="nav-btn-title">← Table of Contents</span>
+                </div>
+              </a>
+              <a href="chapter-02.html" class="chapter-nav-btn next">
+                <div>
+                  <span class="nav-btn-label">Next Chapter</span>
+                  <span class="nav-btn-title">Ch 2: Hardware Setup →</span>
+                </div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          <strong>From Box to Cluster</strong> · First Edition, July 2026 ·
+          <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp;
+          <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a>
+        </p>
+        <p style="margin-top:8px;">
+          <a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> ·
+          <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> ·
+          Licensed under CC BY 4.0
+        </p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); menuBtn.setAttribute('aria-expanded','true'); overlay.setAttribute('aria-hidden','false'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); overlay.setAttribute('aria-hidden','true'); }
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => { if ((l.getAttribute('href')||'').split('#')[0] === page) l.classList.add('active'); });
+    })();
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (!e.isIntersecting) return; const id = e.target.id; sidebar.querySelectorAll('.nav-item').forEach(l => { const h = l.getAttribute('href')||''; if (h.includes('#')) l.classList.toggle('active', h.split('#')[1] === id); }); });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+  </script>
+</body>
+</html>

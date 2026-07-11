@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>FAQ — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Frequently asked questions about NVIDIA DGX Spark Bundle: specs, k3s setup, ARM64 container images, vLLM startup time, supported models, SSH blocking, AIBrix, and why k3s over full Kubernetes.">
+  <meta name="keywords" content="NVIDIA DGX Spark FAQ, DGX Spark Bundle specs, k3s vs Kubernetes, vLLM startup time, ARM64 Ray image, models DGX Spark 256GB, AIBrix FAQ, SSH k3s restart">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/faq.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="FAQ — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="Frequently asked questions about NVIDIA DGX Spark Bundle, k3s, ARM64 images, vLLM, AIBrix, and running large language models.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/faq.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FAQ — From Box to Cluster | DGX Spark Bundle">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <!-- ── Structured Data: FAQPage (AEO) ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the NVIDIA DGX Spark Bundle?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The NVIDIA DGX Spark Bundle is two DGX Spark personal AI supercomputers sold together. Each unit has a Grace Blackwell GB10 GPU with 128GB of unified memory and a 20-core ARM64 CPU. Combined, the bundle provides 256GB of total GPU memory and 40 CPU cores, connected via a high-speed QSFP RDMA cable using ConnectX-7."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you set up a k3s cluster on DGX Spark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Install k3s on Spark 1 (master) with: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--write-kubeconfig-mode 644 --disable=traefik' sh -. Then get the join token from /var/lib/rancher/k3s/server/node-token and join Spark 2 as a worker with K3S_URL and K3S_TOKEN environment variables set. Do not use the --docker flag; k3s uses containerd natively."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which Docker image should I use for Ray on DGX Spark (ARM64)?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Use nvcr.io/nvidia/vllm:25.09-py3 — not the standard rayproject/ray image, which is x86-only and will fail with 'exec format error' on DGX Spark's ARM64 architecture. The NVIDIA vLLM image is ARM64-native, includes Ray 2.49.2, vLLM 0.10.1.1, and CUDA 13.0."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does vLLM take to start on DGX Spark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "First startup takes approximately 25 minutes: about 20 minutes to download the 7B model weights from HuggingFace, then 5 minutes for model loading and tensor parallel initialization. Subsequent startups with a cached model take 3-5 minutes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is AIBrix and why should I use it with vLLM?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "AIBrix is an open-source AI inference gateway that sits between your AI applications and vLLM. It provides request routing, multi-tenancy with namespace isolation, agent lifecycle management, and GPU utilization-aware scheduling. This allows multiple applications to share one vLLM instance safely, with per-namespace quota enforcement."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What models can you run on two DGX Spark units?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "With 256GB of combined unified memory across two DGX Sparks, you can run models including Qwen2.5-7B-Instruct, Qwen2.5-72B-Instruct, Llama 3.3 70B Instruct, Qwen3-235B-A22B-NVFP4 (quantized), Nemotron-3-Super-120B, and Llama 405B in quantized form. vLLM distributes model weights across both GPUs using tensor parallelism."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I fix SSH being blocked after k3s restarts on DGX Spark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "k3s modifies iptables rules on restart which can block SSH. Flush the rules with: sudo iptables -F && sudo iptables -X && sudo iptables -P INPUT ACCEPT && sudo iptables -P FORWARD ACCEPT && sudo iptables -P OUTPUT ACCEPT. To prevent this permanently, add persistent rules before k3s installation: sudo iptables -I INPUT -s 192.168.86.0/24 -j ACCEPT and save with sudo netfilter-persistent save."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you install the NVIDIA GPU Operator on k3s?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Install with Helm: helm repo add nvidia https://helm.ngc.nvidia.com/nvidia && helm repo update && helm install gpu-operator nvidia/gpu-operator --namespace gpu-operator --create-namespace. The operator automatically installs the NVIDIA Container Toolkit, Device Plugin, DCGM Exporter, and GPU Feature Discovery on every node."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why use k3s instead of full Kubernetes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "k3s provides the full Kubernetes API in a single lightweight binary, eliminating the operational complexity of managing separate control-plane components and etcd. For a 2-node personal cluster, the tradeoff is that Flannel CNI (k3s default) does not support RDMA/RoCE, so NCCL falls back to TCP for cross-GPU communication. A future upgrade to RKE2 + Cilium will enable full RDMA support."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "FAQ", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/faq.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="chapter-05.html#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="chapter-05.html#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>FAQ</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="faq" class="chapter-section faq-section" aria-labelledby="faq-title">
+            <div class="chapter-label">Back Matter</div>
+            <h1 class="faq-title" id="faq-title">Frequently Asked Questions</h1>
+
+            <details class="faq-item">
+              <summary class="faq-question">What is the NVIDIA DGX Spark Bundle?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">The NVIDIA DGX Spark Bundle is two DGX Spark personal AI supercomputers sold together. Each unit has a Grace Blackwell GB10 GPU with 128GB of unified memory and a 20-core ARM64 CPU. Combined, the bundle provides 256GB of total GPU memory and 40 CPU cores, connected via a high-speed QSFP RDMA cable using ConnectX-7.</div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">Which container image should I use for Ray on DGX Spark?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">Use <code>nvcr.io/nvidia/vllm:25.09-py3</code> — not the standard <code>rayproject/ray</code> image, which is x86-only and will fail with "exec format error" on DGX Spark's ARM64 architecture. The NVIDIA vLLM image is ARM64-native and includes Ray 2.49.2, vLLM 0.10.1.1, and CUDA 13.0.</div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">How long does vLLM take to start on DGX Spark?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">First startup takes approximately 25 minutes: ~20 minutes to download the 7B model weights from HuggingFace, then ~5 minutes for model loading and tensor parallel initialization. Subsequent startups with a cached model take 3–5 minutes.</div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">What models can I run on two DGX Spark units?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">With 256GB of combined unified memory, you can run Qwen2.5-7B-Instruct, Qwen2.5-72B-Instruct, Llama 3.3 70B Instruct, Qwen3-235B-A22B-NVFP4 (quantized), Nemotron-3-Super-120B, and Llama 405B in quantized form. vLLM distributes model weights across both GPUs using tensor parallelism with <code>--tensor-parallel-size 2</code>.</div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">How do I fix SSH being blocked after k3s restarts?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">k3s modifies iptables rules on restart. Flush them with:
+                <pre><code>sudo iptables -F && sudo iptables -X
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -P OUTPUT ACCEPT</code></pre>
+                To prevent this permanently, add <code>sudo iptables -I INPUT -s 192.168.86.0/24 -j ACCEPT</code> before k3s installation and save with <code>sudo netfilter-persistent save</code>.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">What is AIBrix and why use it with vLLM?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">AIBrix is an open-source AI inference gateway that provides request routing, multi-tenancy with namespace isolation, agent lifecycle management, and GPU utilization-aware scheduling. It allows multiple applications to safely share one vLLM instance with per-namespace quota enforcement and without exposing vLLM's internal service address to each application.</div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-question">Why k3s instead of full Kubernetes?<svg class="faq-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5"/></svg></summary>
+              <div class="faq-answer">k3s provides the full Kubernetes API in a single lightweight binary, eliminating the operational complexity of managing separate control-plane components and etcd. For a 2-node personal cluster, the tradeoff is that Flannel CNI (k3s default) does not support RDMA/RoCE, so NCCL falls back to TCP for cross-GPU communication. A future upgrade to RKE2 + Cilium will enable full RDMA support.</div>
+            </details>
+
+            <div class="chapter-nav">
+              <a href="troubleshooting.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Troubleshooting</span></div>
+              </a>
+              <a href="authors.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Next</span><span class="nav-btn-title">About the Authors →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>

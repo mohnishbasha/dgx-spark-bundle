@@ -26,11 +26,18 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p _site
-          touch _site/.nojekyll
+          # Root-level pages and SEO files
           cp index.html _site/index.html
+          cp robots.txt _site/robots.txt
+          cp sitemap.xml _site/sitemap.xml
+          cp llms.txt _site/llms.txt
+          touch _site/.nojekyll
+          # Book content (exclude Claude project files)
           rsync -a --exclude='.claude' books/ _site/books/
 
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

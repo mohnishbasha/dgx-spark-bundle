@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 5: KubeRay — From Box to Cluster | DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 5: KubeRay for distributed AI on NVIDIA DGX Spark. ARM64 container image warning, KubeRay operator install, NGC login, cross-node networking validation, and RayCluster deployment.">
+  <meta name="keywords" content="KubeRay DGX Spark, ARM64 Ray image, nvcr.io nvidia vllm 25.09-py3, RayCluster YAML, cross-node Ray cluster, NGC API key, exec format error ARM64">
+  <meta name="author" content="Mohinish Shaikh, Sanwi Sarode">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-05.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 5: KubeRay — From Box to Cluster | DGX Spark Bundle">
+  <meta property="og:description" content="KubeRay on DGX Spark: ARM64 image, operator install, cross-node networking, and RayCluster YAML.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-05.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 5: KubeRay — From Box to Cluster">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "KubeRay for Distributed AI",
+    "position": 5,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-05.html",
+    "isPartOf": { "@type": "Book", "name": "From Box to Cluster", "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Sanwi Sarode" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "From Box to Cluster", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 5: KubeRay", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/chapter-05.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">NVIDIA</span>
+          <span class="sidebar-title">From Box to Cluster</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Sanwi Sarode · July 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+        <div class="nav-section-label">Part I — Node Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-what" class="nav-item nav-sub">What You're Building</a>
+        <a href="chapter-01.html#ch1-stack" class="nav-item nav-sub">Software Stack</a>
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Hardware Setup</a>
+        <a href="chapter-02.html#ch2-specs" class="nav-item nav-sub">Hardware Specs</a>
+        <a href="chapter-02.html#ch2-network" class="nav-item nav-sub">Network Config</a>
+        <a href="chapter-02.html#ch2-docker" class="nav-item nav-sub">Docker Setup</a>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
+        <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="chapter-04.html#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
+        <div class="nav-section-label">Part II — Model Serving</div>
+        <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
+        <a href="#ch5-arm64" class="nav-item nav-sub">ARM64 Warning</a>
+        <a href="#ch5-cluster" class="nav-item nav-sub">Deploy RayCluster</a>
+        <a href="chapter-06.html" class="nav-item">Ch 6 — vLLM</a>
+        <a href="chapter-06.html#ch6-flags" class="nav-item nav-sub">Configuration Flags</a>
+        <a href="chapter-06.html#ch6-verify" class="nav-item nav-sub">Verification</a>
+        <a href="chapter-07.html" class="nav-item">Ch 7 — AIBrix Gateway</a>
+        <a href="chapter-08.html" class="nav-item">Ch 8 — Monitoring</a>
+        <a href="chapter-08.html#ch8-grafana" class="nav-item nav-sub">Grafana Access</a>
+        <a href="chapter-08.html#ch8-gpu" class="nav-item nav-sub">GPU Metrics</a>
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+        <a href="faq.html" class="nav-item">FAQ</a>
+        <a href="authors.html" class="nav-item">About the Authors</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">From Box to Cluster</a> /
+            <span>Ch 5: KubeRay</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/dgx-spark-ebook.pdf" class="btn-download" aria-label="Download PDF">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+          <section id="chapter-5" class="chapter-section" aria-labelledby="ch5-title">
+            <div class="chapter-label">Chapter 5 · Part II</div>
+            <h1 id="ch5-title">KubeRay for Distributed AI</h1>
+
+            <p><a href="https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html" rel="noopener" target="_blank">KubeRay</a> is the Kubernetes operator for <a href="https://ray.io" rel="noopener" target="_blank">Ray</a>, an open-source framework for distributed Python workloads. It manages the lifecycle of RayClusters — head nodes, worker nodes, and autoscaling — as native Kubernetes resources. On DGX Spark Bundle, KubeRay bridges both nodes into a single Ray cluster so vLLM can split a large model across both GB10 GPUs using tensor parallelism.</p>
+
+            <div id="ch5-arm64">
+              <div class="callout callout-critical">
+                <div class="callout-title">Critical — ARM64 Architecture Warning</div>
+                The standard Ray image (<code>rayproject/ray</code>) is <strong>x86-only</strong> and will fail on DGX Spark with "exec format error". Always use:
+                <pre><code>nvcr.io/nvidia/vllm:25.09-py3</code></pre>
+                This image is ARM64-native with Ray 2.49.2, vLLM 0.10.1.1, and CUDA 13.0 built in.
+              </div>
+            </div>
+
+            <h2>Install KubeRay Operator</h2>
+            <pre><code>helm repo add kuberay https://ray-project.github.io/kuberay-helm/
+helm repo update
+
+helm install kuberay-operator kuberay/kuberay-operator \
+  --namespace kuberay-system \
+  --create-namespace \
+  --set nodeSelector."kubernetes\\.io/hostname"=spark-720e</code></pre>
+
+            <pre><code>kubectl get pods -n kuberay-system
+# kuberay-operator pod should show Running</code></pre>
+
+            <h2>NGC Registry Login</h2>
+            <pre><code># On both Sparks
+docker login nvcr.io
+# Username: $oauthtoken
+# Password: &lt;YOUR_NGC_API_KEY&gt;</code></pre>
+
+            <h2>HuggingFace Token Secret</h2>
+            <pre><code>kubectl create secret generic hf-token \
+  --from-literal=token=$HF_TOKEN \
+  -n core-services</code></pre>
+
+            <h2>Validate Cross-Node Networking</h2>
+            <pre><code>kubectl run test-spark1 \
+  --image=busybox \
+  --overrides='{"spec":{"nodeSelector":{"kubernetes.io/hostname":"spark-720e"}}}' \
+  --command -- sleep 3600
+
+kubectl run test-spark2 \
+  --image=busybox \
+  --overrides='{"spec":{"nodeSelector":{"kubernetes.io/hostname":"spark-7229"}}}' \
+  --command -- sleep 3600
+
+kubectl get pods -o wide  # get SPARK2_POD_IP
+kubectl exec test-spark1 -- ping -c 4 &lt;SPARK2_POD_IP&gt;
+kubectl delete pod test-spark1 test-spark2</code></pre>
+
+            <div id="ch5-cluster">
+              <h2>Deploy RayCluster</h2>
+              <pre><code>kubectl apply -f - &lt;&lt;'EOF'
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: vllm-cluster
+  namespace: core-services
+spec:
+  rayVersion: '2.49.2'
+  headGroupSpec:
+    rayStartParams:
+      dashboard-host: '0.0.0.0'
+      num-gpus: '1'
+    template:
+      spec:
+        nodeSelector:
+          kubernetes.io/hostname: spark-720e
+        containers:
+        - name: ray-head
+          image: nvcr.io/nvidia/vllm:25.09-py3
+          command: ["/bin/bash", "-c"]
+          args:
+          - |
+            ray start --head \
+              --dashboard-host=0.0.0.0 \
+              --num-gpus=1 \
+              --block &amp;
+            sleep 30
+            python3 -m vllm.entrypoints.openai.api_server \
+              --model Qwen/Qwen2.5-7B-Instruct \
+              --tensor-parallel-size 2 \
+              --distributed-executor-backend ray \
+              --host 0.0.0.0 \
+              --port 8000 \
+              --gpu-memory-utilization 0.85 \
+              --max-num-seqs 4
+          env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token
+                key: token
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+              memory: "100Gi"
+  workerGroupSpecs:
+  - replicas: 1
+    groupName: worker-group
+    rayStartParams:
+      num-gpus: '1'
+    template:
+      spec:
+        nodeSelector:
+          kubernetes.io/hostname: spark-7229
+        containers:
+        - name: ray-worker
+          image: nvcr.io/nvidia/vllm:25.09-py3
+          command: ["/bin/bash", "-c"]
+          args:
+          - |
+            ray start \
+              --address=vllm-cluster-head-svc.core-services.svc.cluster.local:6379 \
+              --num-gpus=1 \
+              --block
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+              memory: "100Gi"
+EOF</code></pre>
+
+              <h2>Verify Ray Cluster</h2>
+              <pre><code>HEAD=$(kubectl get pods -n core-services -l ray.io/node-type=head -o name | head -1)
+kubectl exec -n core-services $HEAD -- python3 -c \
+  "import ray; ray.init(); print(ray.cluster_resources())"
+# Expected: {'GPU': 2.0, 'CPU': 40.0, 'accelerator_type:GB10': 2.0}</code></pre>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="chapter-04.html" class="chapter-nav-btn">
+                <div><span class="nav-btn-label">Previous</span><span class="nav-btn-title">← Ch 4: k3s</span></div>
+              </a>
+              <a href="chapter-06.html" class="chapter-nav-btn next">
+                <div><span class="nav-btn-label">Next Chapter</span><span class="nav-btn-title">Ch 6: vLLM →</span></div>
+              </a>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer role="contentinfo">
+        <p><strong>From Box to Cluster</strong> · First Edition, July 2026 · <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp; <a href="https://www.linkedin.com/in/sanwi-sarode-785b0b282/" rel="author noopener" target="_blank">Sanwi Sarode</a></p>
+        <p style="margin-top:8px;"><a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> · <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> · Licensed under CC BY 4.0</p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+    function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');menuBtn.setAttribute('aria-expanded','true');overlay.setAttribute('aria-hidden','false');}
+    function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');overlay.setAttribute('aria-hidden','true');}
+    menuBtn.addEventListener('click',()=>sidebar.classList.contains('open')?closeSidebar():openSidebar());
+    overlay.addEventListener('click',closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar();}));
+    (function(){const page=window.location.pathname.split('/').pop()||'index.html';sidebar.querySelectorAll('.nav-item').forEach(l=>{if((l.getAttribute('href')||'').split('#')[0]===page)l.classList.add('active');});})();
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const id=e.target.id;sidebar.querySelectorAll('.nav-item').forEach(l=>{const h=l.getAttribute('href')||'';if(h.includes('#'))l.classList.toggle('active',h.split('#')[1]===id);});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}});});
+  </script>
+</body>
+</html>
