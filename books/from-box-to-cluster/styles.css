@@ -784,10 +784,56 @@ footer a:hover { text-decoration: underline; }
 
 /* ── Print ── */
 @media print {
-  .sidebar, .topbar, .chapter-nav, footer { display: none !important; }
-  .main { margin: 0; }
-  .content-area { max-width: 100%; padding: 0; }
-  pre { white-space: pre-wrap; word-break: break-all; }
-  h2 { page-break-before: always; }
-  .stack-card { box-shadow: none; border: 1px solid #e5e7eb; }
+  /* Hide web chrome */
+  .sidebar, .sidebar-overlay, .topbar, .skip-link,
+  .btn-download, .chapter-nav, footer { display: none !important; }
+
+  /* Layout */
+  .main { margin-left: 0 !important; }
+  .layout { display: block; }
+  .content-area { max-width: 100%; padding: 0 0 16px !important; }
+
+  /* Cover */
+  .cover-section { padding: 40px 20px 32px !important; min-height: 0 !important; }
+  .gradient-bg { background: #f0fdf4 !important; animation: none !important; }
+  .orb { display: none !important; }
+
+  /* Compact spacing */
+  .chapter-section { padding-top: 4px !important; }
+  h1 { font-size: 20pt !important; margin-bottom: 8px !important; }
+  h2 { font-size: 14pt !important; margin: 16px 0 8px !important; padding-bottom: 4px !important;
+       page-break-before: avoid !important; break-before: avoid !important; }
+  h3 { font-size: 12pt !important; margin: 12px 0 6px !important; }
+  p  { margin-bottom: 8px !important; }
+
+  /* Never break after a heading */
+  h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+
+  /* Code */
+  pre { font-size: 9pt !important; line-height: 1.4 !important;
+        padding: 10px 14px !important; margin: 8px 0 !important;
+        page-break-inside: avoid; break-inside: avoid;
+        white-space: pre-wrap; word-break: break-word; }
+
+  /* Tables */
+  table { font-size: 10pt !important; box-shadow: none !important; page-break-inside: avoid; }
+  th, td { padding: 6px 10px !important; }
+
+  /* Cards */
+  .stack-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .stack-card { box-shadow: none !important; padding: 12px !important; break-inside: avoid; }
+
+  /* Callouts */
+  .callout { margin: 8px 0 !important; page-break-inside: avoid; }
+
+  /* FAQ: show all answers */
+  .faq-answer { display: block !important; }
+  .faq-chevron { display: none !important; }
+
+  /* Figures */
+  figure { page-break-inside: avoid; margin: 10px 0 !important; }
+  figure svg { max-width: 100% !important; }
+
+  /* Preserve colors */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
