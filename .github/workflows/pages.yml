@@ -25,10 +25,11 @@ jobs:
 
       - name: Generate PDF
         run: |
+          python3 books/from-box-to-cluster/build-print.py
           google-chrome --headless=new --disable-gpu --no-sandbox \
             --print-to-pdf="books/from-box-to-cluster/dist/Ebook_From_Box_to_Cluster.pdf" \
             --virtual-time-budget=10000 \
-            "file://$(pwd)/books/from-box-to-cluster/dist/dgx-spark-ebook-pandoc.html"
+            "file://$(pwd)/books/from-box-to-cluster/dist/print.html"
 
       - name: Assemble site
         run: |

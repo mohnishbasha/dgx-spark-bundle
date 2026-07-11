@@ -8,9 +8,10 @@ Thumbs.db
 *.swp
 *.swo
 
-# Build artifacts
+# Build artifacts (generated in CI, not committed)
 dist/*.pdf
 books/*/dist/*.pdf
+books/*/dist/print.html
 
 # Node (if tooling is added)
 node_modules/
