@@ -747,7 +747,6 @@ footer {
   text-align: center;
   font-size: 13px;
   color: var(--color-text-muted);
-  margin-left: var(--sidebar-width);
 }
 
 footer a { color: var(--color-accent); }
@@ -764,7 +763,6 @@ footer a:hover { text-decoration: underline; }
   .sidebar-overlay.open { display: block; }
   .menu-toggle { display: flex; }
   .main { margin-left: 0; }
-  footer { margin-left: 0; }
   .topbar { padding: 0 20px; }
   .content-area { padding: 0 20px 60px; }
   .cover-section { padding: 52px 20px 48px; }
