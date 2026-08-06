@@ -17,7 +17,7 @@
   <!-- ── Primary SEO ── -->
   <title>NVIDIA DGX Spark Bundle | Technical Library — Serverless Ventures</title>
   <meta name="description" content="Technical library for NVIDIA DGX Spark Bundle and NVIDIA personal AI hardware. Production-grade guides from first boot to distributed inference cluster — by Serverless Ventures.">
-  <meta name="keywords" content="NVIDIA DGX Spark Bundle, DGX Spark cluster, GB10 Blackwell GPU, vLLM distributed inference, KubeRay, k3s Kubernetes, AIBrix gateway, personal AI supercomputer, NVIDIA technical guide">
+  <meta name="keywords" content="NVIDIA DGX Spark Bundle, DGX Spark cluster, GB10 Blackwell GPU, vLLM distributed inference, KubeRay, k3s Kubernetes, AIBrix gateway, personal AI supercomputer, NVIDIA technical guide, Tailscale WireGuard mesh, Tailscale SSH, AI fleet networking">
   <meta name="author" content="Mohinish Shaikh">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/">
@@ -79,6 +79,23 @@
             { "@type": "Person", "name": "Sanwi Sarode" }
           ],
           "datePublished": "2026-07-01",
+          "publisher": { "@type": "Organization", "name": "Serverless Ventures LLC" },
+          "genre": "Technology / AI Infrastructure",
+          "inLanguage": "en"
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "item": {
+          "@type": "Book",
+          "name": "Tailscale for AI Fleets: Secure Mesh Networking for the DGX Spark Bundle",
+          "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/",
+          "description": "Practical runbook for enrolling 4 DGX Spark nodes in a Tailscale WireGuard mesh, configuring tag-based ACL policy, and establishing password-free SSH access in under 30 minutes.",
+          "author": [
+            { "@type": "Person", "name": "Mohinish Shaikh" }
+          ],
+          "datePublished": "2026-08-01",
           "publisher": { "@type": "Organization", "name": "Serverless Ventures LLC" },
           "genre": "Technology / AI Infrastructure",
           "inLanguage": "en"
@@ -424,7 +441,7 @@
   </section>
 
   <main class="books-section">
-    <div class="section-label">NVIDIA DGX · Published · 1 book</div>
+    <div class="section-label">NVIDIA DGX · Published · 2 books</div>
 
     <a href="books/from-box-to-cluster/" class="book-card">
       <div class="book-spine">
@@ -455,23 +472,34 @@
       </div>
     </a>
 
-    <div class="book-card coming-soon">
-      <div class="book-spine" style="background:linear-gradient(160deg,#374151 0%,#1f2937 100%)">
-        <span class="book-spine-badge">NVIDIA</span>
-        <span class="book-spine-icon" style="font-size:16px;color:#9ca3af;font-family:var(--font-mono)">&#183;&#183;&#183;</span>
-        <span class="book-spine-ed">TBD</span>
+    <a href="books/tailscale-for-ai-fleets/" class="book-card">
+      <div class="book-spine" style="background:linear-gradient(160deg,#0f172a 0%,#1e293b 60%,#0ea5e9 100%)">
+        <span class="book-spine-badge">NETWORK</span>
+        <span class="book-spine-icon">&#128274;</span>
+        <span class="book-spine-ed">Ed. 1</span>
       </div>
       <div class="book-body">
         <div class="book-tags">
-          <span class="book-tag">Coming Soon</span>
-          <span class="book-tag">NVIDIA</span>
+          <span class="book-tag">Tailscale</span>
+          <span class="book-tag">WireGuard</span>
+          <span class="book-tag">MagicDNS</span>
+          <span class="book-tag">ACL policy</span>
         </div>
-        <div class="book-title">Future NVIDIA Hardware Guide</div>
-        <div class="book-subtitle">Subsequent guides covering NVIDIA DGX Station 2, DGX H200, and other NVIDIA personal AI hardware products — in development at Serverless Ventures.</div>
-        <div class="book-meta">Serverless Ventures · In Development</div>
-        <span class="book-cta muted">Coming Soon</span>
+        <div class="book-title">Tailscale for AI Fleets</div>
+        <div class="book-subtitle">Secure Mesh Networking for the DGX Spark Bundle — zero-config WireGuard mesh, tag-based ACL, and password-free SSH across 4 DGX Spark nodes in under 30 minutes.</div>
+        <div class="book-meta">Mohinish Shaikh · First Edition · August 2026</div>
+        <div class="book-stats">
+          <div class="book-stat"><span class="book-stat-value">4</span><span class="book-stat-label">Chapters</span></div>
+          <div class="book-stat"><span class="book-stat-value">4</span><span class="book-stat-label">Spark Nodes</span></div>
+          <div class="book-stat"><span class="book-stat-value">1</span><span class="book-stat-label">Tailnet</span></div>
+          <div class="book-stat"><span class="book-stat-value">0</span><span class="book-stat-label">Passwords</span></div>
+        </div>
+        <span class="book-cta">
+          Read Book
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
       </div>
-    </div>
+    </a>
   </main>
 
   <footer class="site-footer">
