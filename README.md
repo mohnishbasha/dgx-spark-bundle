@@ -25,7 +25,7 @@ Practical runbook for enrolling DGX Spark nodes in a Tailscale mesh network, con
 - **Stack:** Tailscale · WireGuard · MagicDNS · Tailscale SSH · ACL policy
 - **Hardware:** 2× DGX Spark nodes · macOS client
 - **Chapters:** 4 (Fleet Setup · Machine Enrollment · ACL Policy · Client SSH Access)
-- **Read:** [books/tailscale-on-dgx-sparks-bundle/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/)
+- **Read:** [books/tailscale-for-ai-fleets/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/)
 
 ---
 
@@ -42,7 +42,7 @@ dgx-spark-bundle/
 │   │   ├── styles.css
 │   │   ├── README.md
 │   │   └── dist/                           # Generated artifacts
-│   └── tailscale-on-dgx-sparks-bundle/
+│   └── tailscale-for-ai-fleets/
 │       ├── index.html                      # Full ebook (single-page)
 │       ├── README.md
 │       └── dist/                           # Generated artifacts

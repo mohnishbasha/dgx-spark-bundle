@@ -1,6 +1,6 @@
 # Tailscale on DGX Spark Bundle: Zero-Config Secure Networking for Your AI Fleet
 
-**Read online:** https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/
+**Read online:** https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/
 
 Practical runbook for enrolling NVIDIA DGX Spark nodes in a Tailscale WireGuard mesh, configuring ACL policy with tag-based SSH access, and connecting from a macOS client — in under 30 minutes. No firewall rules, no SSH key management.
 
@@ -61,7 +61,7 @@ tag:spark → SSH accept rule → group:operators
 ## Source Files
 
 ```
-tailscale-on-dgx-sparks-bundle/
+tailscale-for-ai-fleets/
 ├── 00-cover.md
 ├── 01-preface.md
 ├── 02-toc.md
