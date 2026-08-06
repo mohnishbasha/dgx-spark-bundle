@@ -1,4 +1,4 @@
-# Tailscale on DGX Spark Bundle: Zero-Config Secure Networking for Your AI Fleet
+# Tailscale for AI Fleets: Secure Mesh Networking for the DGX Spark Bundle
 
 **Read online:** https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/
 

@@ -8,24 +8,10 @@ Open technical books on AI infrastructure, GPU computing, and distributed system
 
 ## Books
 
-### Book 1 — From Box to Cluster: Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle
-
-Step-by-step guide to configuring two NVIDIA DGX Spark units into a production AI inference cluster running vLLM, KubeRay, k3s, and AIBrix.
-
-- **Stack:** DGX OS · k3s · NVIDIA GPU Operator · KubeRay · vLLM · AIBrix · Prometheus/Grafana
-- **Hardware:** 2× GB10 Blackwell GPUs · 256 GB unified memory · ConnectX-7 RDMA
-- **Read:** [books/from-box-to-cluster/](https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/)
-
----
-
-### Book 2 — Tailscale on DGX Spark Bundle: Zero-Config Secure Networking for Your AI Fleet
-
-Practical runbook for enrolling DGX Spark nodes in a Tailscale mesh network, configuring ACL policy, and establishing password-free SSH access from macOS clients — in under 30 minutes.
-
-- **Stack:** Tailscale · WireGuard · MagicDNS · Tailscale SSH · ACL policy
-- **Hardware:** 2× DGX Spark nodes · macOS client
-- **Chapters:** 4 (Fleet Setup · Machine Enrollment · ACL Policy · Client SSH Access)
-- **Read:** [books/tailscale-for-ai-fleets/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/)
+| # | Title | Description | Stack | Read |
+|---|-------|-------------|-------|------|
+| 1 | **From Box to Cluster** — Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle | Step-by-step guide to configuring two DGX Spark units into a production AI inference cluster | DGX OS · k3s · GPU Operator · KubeRay · vLLM · AIBrix · Prometheus/Grafana | [books/from-box-to-cluster/](https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/) |
+| 2 | **Tailscale for AI Fleets** — Secure Mesh Networking for the DGX Spark Bundle | Practical runbook for enrolling DGX Spark nodes in a Tailscale WireGuard mesh with tag-based ACL and password-free SSH | Tailscale · WireGuard · MagicDNS · Tailscale SSH · ACL policy | [books/tailscale-for-ai-fleets/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/) |
 
 ---
 
