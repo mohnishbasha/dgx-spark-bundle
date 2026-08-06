@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Mohinish Shaikh" />
+  <meta name="description" content="Step-by-step guide to enrolling NVIDIA DGX Spark machines onto a Tailscale tailnet with zero-trust SSH access control." />
+  <title>Tailscale on DGX Spark Bundle</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Tailscale on DGX Spark Bundle</h1>
+<p class="subtitle">Zero-Config Secure Networking for Your AI Fleet</p>
+<p class="author">Mohinish Shaikh</p>
+<p class="date">August 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#tailscale-on-dgx-spark-bundle"
+id="toc-tailscale-on-dgx-spark-bundle"><span
+class="toc-section-number">1</span> Tailscale on DGX Spark
+Bundle</a></li>
+<li><a href="#preface" id="toc-preface"><span
+class="toc-section-number">2</span> Preface</a>
+<ul>
+<li><a href="#why-we-wrote-this-runbook"
+id="toc-why-we-wrote-this-runbook"><span
+class="toc-section-number">2.1</span> Why We Wrote This Runbook</a></li>
+<li><a href="#what-this-runbook-covers"
+id="toc-what-this-runbook-covers"><span
+class="toc-section-number">2.2</span> What This Runbook Covers</a></li>
+<li><a href="#who-this-is-for" id="toc-who-this-is-for"><span
+class="toc-section-number">2.3</span> Who This Is For</a></li>
+</ul></li>
+<li><a href="#table-of-contents" id="toc-table-of-contents"><span
+class="toc-section-number">3</span> Table of Contents</a>
+<ul>
+<li><a href="#part-i-fleet-setup" id="toc-part-i-fleet-setup"><span
+class="toc-section-number">3.1</span> Part I — Fleet Setup</a></li>
+<li><a href="#part-ii-access-control"
+id="toc-part-ii-access-control"><span
+class="toc-section-number">3.2</span> Part II — Access Control</a></li>
+<li><a href="#back-matter" id="toc-back-matter"><span
+class="toc-section-number">3.3</span> Back Matter</a></li>
+</ul></li>
+<li><a href="#chapter-1-introduction-the-networking-problem"
+id="toc-chapter-1-introduction-the-networking-problem"><span
+class="toc-section-number">4</span> Chapter 1: Introduction — The
+Networking Problem</a>
+<ul>
+<li><a href="#the-networking-problem-with-a-dgx-fleet"
+id="toc-the-networking-problem-with-a-dgx-fleet"><span
+class="toc-section-number">4.1</span> The Networking Problem with a DGX
+Fleet</a></li>
+<li><a href="#what-you-want-instead"
+id="toc-what-you-want-instead"><span
+class="toc-section-number">4.2</span> What You Want Instead</a></li>
+<li><a href="#how-tailscale-works" id="toc-how-tailscale-works"><span
+class="toc-section-number">4.3</span> How Tailscale Works</a></li>
+<li><a href="#architecture-overview"
+id="toc-architecture-overview"><span
+class="toc-section-number">4.4</span> Architecture Overview</a></li>
+</ul></li>
+<li><a href="#chapter-2-enrolling-the-spark-machines"
+id="toc-chapter-2-enrolling-the-spark-machines"><span
+class="toc-section-number">5</span> Chapter 2: Enrolling the Spark
+Machines</a>
+<ul>
+<li><a href="#step-1-install-tailscale"
+id="toc-step-1-install-tailscale"><span
+class="toc-section-number">5.1</span> Step 1 — Install
+Tailscale</a></li>
+<li><a href="#step-2-bring-up-tailscale-with-ssh-mode-and-tag"
+id="toc-step-2-bring-up-tailscale-with-ssh-mode-and-tag"><span
+class="toc-section-number">5.2</span> Step 2 — Bring Up Tailscale with
+SSH Mode and Tag</a></li>
+<li><a href="#step-3-verify-the-tag-in-the-admin-console"
+id="toc-step-3-verify-the-tag-in-the-admin-console"><span
+class="toc-section-number">5.3</span> Step 3 — Verify the Tag in the
+Admin Console</a></li>
+</ul></li>
+<li><a href="#chapter-3-configuring-access-control-policy"
+id="toc-chapter-3-configuring-access-control-policy"><span
+class="toc-section-number">6</span> Chapter 3: Configuring Access
+Control Policy</a>
+<ul>
+<li><a href="#step-1-invite-users-to-the-tailnet"
+id="toc-step-1-invite-users-to-the-tailnet"><span
+class="toc-section-number">6.1</span> Step 1 — Invite Users to the
+Tailnet</a></li>
+<li><a href="#step-2-define-groups-and-tag-ownership"
+id="toc-step-2-define-groups-and-tag-ownership"><span
+class="toc-section-number">6.2</span> Step 2 — Define Groups and Tag
+Ownership</a></li>
+<li><a href="#step-3-write-the-ssh-accept-rule"
+id="toc-step-3-write-the-ssh-accept-rule"><span
+class="toc-section-number">6.3</span> Step 3 — Write the SSH Accept
+Rule</a></li>
+</ul></li>
+<li><a href="#chapter-4-client-setup-and-ssh-access"
+id="toc-chapter-4-client-setup-and-ssh-access"><span
+class="toc-section-number">7</span> Chapter 4: Client Setup and SSH
+Access</a>
+<ul>
+<li><a href="#step-1-install-tailscale-on-macos"
+id="toc-step-1-install-tailscale-on-macos"><span
+class="toc-section-number">7.1</span> Step 1 — Install Tailscale on
+macOS</a></li>
+<li><a href="#step-2-login-and-verify"
+id="toc-step-2-login-and-verify"><span
+class="toc-section-number">7.2</span> Step 2 — Login and Verify</a></li>
+<li><a href="#step-3-ssh-into-a-spark-node"
+id="toc-step-3-ssh-into-a-spark-node"><span
+class="toc-section-number">7.3</span> Step 3 — SSH into a Spark
+Node</a></li>
+<li><a href="#summary" id="toc-summary"><span
+class="toc-section-number">7.4</span> Summary</a></li>
+</ul></li>
+<li><a href="#command-cheatsheet" id="toc-command-cheatsheet"><span
+class="toc-section-number">8</span> Command Cheatsheet</a>
+<ul>
+<li><a href="#on-the-spark-machine-linux-ubuntu-arm64"
+id="toc-on-the-spark-machine-linux-ubuntu-arm64"><span
+class="toc-section-number">8.1</span> On the Spark Machine (Linux /
+Ubuntu ARM64)</a></li>
+<li><a href="#on-the-operator-laptop-macos"
+id="toc-on-the-operator-laptop-macos"><span
+class="toc-section-number">8.2</span> On the Operator Laptop
+(macOS)</a></li>
+<li><a href="#ssh-commands" id="toc-ssh-commands"><span
+class="toc-section-number">8.3</span> SSH Commands</a></li>
+<li><a href="#admin-console-quick-reference"
+id="toc-admin-console-quick-reference"><span
+class="toc-section-number">8.4</span> Admin Console Quick
+Reference</a></li>
+<li><a href="#minimum-working-acl-policy"
+id="toc-minimum-working-acl-policy"><span
+class="toc-section-number">8.5</span> Minimum Working ACL
+Policy</a></li>
+</ul></li>
+<li><a href="#troubleshooting" id="toc-troubleshooting"><span
+class="toc-section-number">9</span> Troubleshooting</a>
+<ul>
+<li><a href="#permission-denied-when-sshing-into-a-spark"
+id="toc-permission-denied-when-sshing-into-a-spark"><span
+class="toc-section-number">9.1</span> <code>permission denied</code>
+when SSHing into a Spark</a></li>
+<li><a href="#clientserver-version-mismatch-warning"
+id="toc-clientserver-version-mismatch-warning"><span
+class="toc-section-number">9.2</span> Client/server version mismatch
+warning</a></li>
+<li><a href="#tailscale-ssh-is-not-enabled-on-this-machine"
+id="toc-tailscale-ssh-is-not-enabled-on-this-machine"><span
+class="toc-section-number">9.3</span> Tailscale SSH is not enabled on
+this machine</a></li>
+<li><a href="#a-spark-is-not-appearing-in-tailscale-status"
+id="toc-a-spark-is-not-appearing-in-tailscale-status"><span
+class="toc-section-number">9.4</span> A Spark is not appearing in
+<code>tailscale status</code></a></li>
+<li><a href="#error-tagspark-is-not-defined-in-the-policy"
+id="toc-error-tagspark-is-not-defined-in-the-policy"><span
+class="toc-section-number">9.5</span> Error: <code>tag:spark</code> is
+not defined in the policy</a></li>
+<li><a href="#machine-enrolled-in-the-wrong-tailnet"
+id="toc-machine-enrolled-in-the-wrong-tailnet"><span
+class="toc-section-number">9.6</span> Machine enrolled in the wrong
+tailnet</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 data-number="1" id="tailscale-on-dgx-spark-bundle"><span
+class="header-section-number">1</span> Tailscale on DGX Spark
+Bundle</h1>
+<p><strong>Zero-Config Secure Networking for Your AI Fleet</strong></p>
+<p><em>First Edition — August 2026</em></p>
+<p>Author: Mohinish Shaikh Publisher: Serverless Ventures LLC</p>
+<hr />
+<p><strong>4 Chapters · 2 Spark Nodes · 1 Tailnet · 0
+Passwords</strong></p>
+<hr />
+<p><em>Licensed under Creative Commons Attribution 4.0 International (CC
+BY 4.0)</em></p>
+<h1 data-number="2" id="preface"><span
+class="header-section-number">2</span> Preface</h1>
+<h2 data-number="2.1" id="why-we-wrote-this-runbook"><span
+class="header-section-number">2.1</span> Why We Wrote This Runbook</h2>
+<p>When you stand up two NVIDIA DGX Spark machines and want to SSH
+between them — or let a colleague log in from a laptop — the default
+answer is “set up SSH keys and open firewall ports.” On a home lab or
+startup network this is manageable. On a fleet that spans offices, cloud
+VMs, and developer laptops, it becomes a maintenance burden: rotating
+keys, updating firewall rules every time someone joins or leaves, and
+hoping nothing drifts out of sync.</p>
+<p>Tailscale eliminates that entire class of problem. It builds a
+WireGuard mesh between all your devices, and lets you declare who can
+SSH into what with a single JSON policy file. Onboarding a new engineer
+is one admin-console invite. Offboarding is removing them from the
+tailnet — and every machine in the fleet immediately enforces the
+change.</p>
+<p>We run two DGX Sparks in our lab. Getting Tailscale onto them,
+tagging them correctly, writing the ACL, and verifying that a MacBook
+could SSH into either node without a password took less than thirty
+minutes. This runbook is exactly what we did, in the order we did
+it.</p>
+<h2 data-number="2.2" id="what-this-runbook-covers"><span
+class="header-section-number">2.2</span> What This Runbook Covers</h2>
+<ul>
+<li><strong>Machine enrollment</strong> — install Tailscale on each
+Spark, enable SSH mode, authenticate to the tailnet</li>
+<li><strong>Tagging</strong> — apply <code>tag:spark</code> so one ACL
+rule covers the whole fleet</li>
+<li><strong>Access control</strong> — define
+<code>group:operators</code>, set tag ownership, write the SSH accept
+rule</li>
+<li><strong>Client setup</strong> — install Tailscale on macOS, login,
+verify peer visibility, SSH via IP or MagicDNS hostname</li>
+<li><strong>Operations</strong> — troubleshooting, version mismatches,
+checking SSH enable state</li>
+</ul>
+<h2 data-number="2.3" id="who-this-is-for"><span
+class="header-section-number">2.3</span> Who This Is For</h2>
+<p>This runbook assumes you already have DGX Spark hardware running and
+you are comfortable with a Linux terminal. No prior Tailscale or
+WireGuard experience is required — every concept is explained the first
+time it appears.</p>
+<blockquote>
+<p><strong>Companion book:</strong> If you are setting up the DGX Sparks
+from scratch — first boot, static IPs, k3s, KubeRay, vLLM — see the
+companion book <em>From Box to Cluster</em>. This runbook picks up where
+networking configuration leaves off.</p>
+</blockquote>
+<p><em>— Mohinish Shaikh, August 2026</em></p>
+<h1 data-number="3" id="table-of-contents"><span
+class="header-section-number">3</span> Table of Contents</h1>
+<h2 data-number="3.1" id="part-i-fleet-setup"><span
+class="header-section-number">3.1</span> Part I — Fleet Setup</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 25%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>Title</th>
+<th>Key Topics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Introduction: The Networking Problem</td>
+<td>Why Tailscale, WireGuard mesh, tailnet concepts, architecture</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enrolling the Spark Machines</td>
+<td>Install, <code>tailscale up --ssh</code>, login URL, tag
+application</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="3.2" id="part-ii-access-control"><span
+class="header-section-number">3.2</span> Part II — Access Control</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 25%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>Title</th>
+<th>Key Topics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Configuring Access Control Policy</td>
+<td>Invite users, groups, tagOwners, SSH accept rule</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Client Setup and SSH Access</td>
+<td>macOS install, login, verify status, MagicDNS SSH</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="3.3" id="back-matter"><span
+class="header-section-number">3.3</span> Back Matter</h2>
+<table>
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Section</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Command Cheatsheet</td>
+<td>Quick-reference for all Tailscale CLI commands</td>
+</tr>
+<tr>
+<td>Troubleshooting</td>
+<td>Permission denied, version mismatch, SSH not enabled</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="4"
+id="chapter-1-introduction-the-networking-problem"><span
+class="header-section-number">4</span> Chapter 1: Introduction — The
+Networking Problem</h1>
+<p>You have two NVIDIA DGX Spark machines. They are powerful, quiet, and
+ready to run frontier-scale AI workloads. The only question is: how do
+you — and your team — actually get into them?</p>
+<p>The classic answer is SSH keys distributed to everyone who needs
+access, firewall rules punched through for each machine, and a growing
+spreadsheet of who has which key on which laptop. That works fine for
+one machine and one person. For a small AI fleet accessed by multiple
+engineers, it becomes operational debt almost immediately.</p>
+<h2 data-number="4.1" id="the-networking-problem-with-a-dgx-fleet"><span
+class="header-section-number">4.1</span> The Networking Problem with a
+DGX Fleet</h2>
+<p>A two-node DGX Spark setup has a deceptively simple surface area, but
+the networking headaches compound quickly:</p>
+<ul>
+<li><strong>Static IPs change.</strong> If your lab network changes,
+every SSH config and firewall rule must be updated.</li>
+<li><strong>Key rotation is manual.</strong> When someone leaves, you
+must log into every machine and remove their key — a step that is easy
+to miss under pressure.</li>
+<li><strong>VPN complexity.</strong> Traditional VPNs introduce a
+hub-and-spoke bottleneck; all traffic routes through a central server
+even when two peers are on the same LAN.</li>
+<li><strong>No audit trail.</strong> Vanilla SSH gives you auth logs,
+but not a centralized view of who can reach what.</li>
+</ul>
+<blockquote>
+<p><strong>The invisible risk:</strong> The worst outcome is not a
+breach — it is a former team member whose key was never removed,
+silently retaining access to machines running proprietary models for
+months.</p>
+</blockquote>
+<h2 data-number="4.2" id="what-you-want-instead"><span
+class="header-section-number">4.2</span> What You Want Instead</h2>
+<p>You want a system where:</p>
+<ul>
+<li>Any authorized engineer can SSH into any Spark from any device —
+laptop, desktop, or cloud VM — without exchanging keys manually.</li>
+<li>Access is controlled by identity, not by which machine the engineer
+happens to be on.</li>
+<li>Revoking access for one person immediately and completely is a
+single admin action.</li>
+<li>Adding a new Spark to the fleet automatically falls under the same
+access rules as every existing one.</li>
+</ul>
+<p>That is exactly what Tailscale delivers.</p>
+<h2 data-number="4.3" id="how-tailscale-works"><span
+class="header-section-number">4.3</span> How Tailscale Works</h2>
+<p>Tailscale builds a <strong>tailnet</strong> — a private WireGuard
+mesh network — across all your enrolled devices. WireGuard handles the
+encrypted tunnels; Tailscale handles the key exchange and peer discovery
+so you never have to configure WireGuard directly.</p>
+<table>
+<colgroup>
+<col style="width: 64%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WireGuard</td>
+<td>Encrypted peer-to-peer tunnels between all tailnet nodes</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>OAuth/OIDC — each user authenticates via Google, GitHub, or
+Microsoft</td>
+</tr>
+<tr>
+<td>ACL Policy</td>
+<td>HuJSON file declaring who can reach what; enforced on every
+node</td>
+</tr>
+<tr>
+<td>MagicDNS</td>
+<td>Stable hostnames
+(e.g. <code>spark-bundle2-2.tail8a84f6.ts.net</code>) for every
+device</td>
+</tr>
+</tbody>
+</table>
+<h3 data-number="4.3.1" id="tailscale-ssh"><span
+class="header-section-number">4.3.1</span> Tailscale SSH</h3>
+<p>When you start Tailscale with <code>--ssh</code>, it intercepts SSH
+on the tailnet interface and replaces password/key authentication with
+tailnet identity checks. The ACL policy is the sole authorization
+mechanism — no <code>~/.ssh/authorized_keys</code> required.</p>
+<p>After setup, SSH looks like:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> stoke@spark-bundle2-2.tail8a84f6.ts.net</span></code></pre></div>
+<p>No key to specify, no password prompt. The system only asks: “is this
+device on the tailnet and does the ACL allow it to SSH here?”</p>
+<h2 data-number="4.4" id="architecture-overview"><span
+class="header-section-number">4.4</span> Architecture Overview</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                         TAILNET                                  │
+│                                                                  │
+│   ┌──────────────────┐         ┌──────────────────┐             │
+│   │   spark-bundle2-1     │─────────│   spark-bundle2-2     │             │
+│   │  100.67.xx.xx    │WireGuard│  100.70.xx.xx   │             │
+│   │  tag:spark       │         │  tag:spark       │             │
+│   └──────────────────┘         └──────────────────┘             │
+│             ▲                           ▲                        │
+│             │    ACL: group:operators   │                        │
+│             │    may SSH → tag:spark    │                        │
+│             │    as user: stoke         │                        │
+│   ┌──────────────────────────────────────────────────┐          │
+│   │  macOS laptop   100.124.xx.xx                  │          │
+│   │  mohnishbasha@  (group:operators member)         │          │
+│   └──────────────────────────────────────────────────┘          │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<h3 data-number="4.4.1" id="setup-sequence"><span
+class="header-section-number">4.4.1</span> Setup Sequence</h3>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 31%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Where</th>
+<th>Chapter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Install Tailscale &amp; enable SSH on each Spark</td>
+<td>Terminal on each Spark</td>
+<td>Ch 2</td>
+</tr>
+<tr>
+<td>2. Apply <code>tag:spark</code> to each machine</td>
+<td>Tailscale admin console</td>
+<td>Ch 2</td>
+</tr>
+<tr>
+<td>3. Invite operators to the tailnet</td>
+<td>Tailscale admin console</td>
+<td>Ch 3</td>
+</tr>
+<tr>
+<td>4. Define groups, tags, and SSH rule in ACL</td>
+<td>Tailscale admin console</td>
+<td>Ch 3</td>
+</tr>
+<tr>
+<td>5. Install Tailscale on operator laptops, login</td>
+<td>Each operator’s machine</td>
+<td>Ch 4</td>
+</tr>
+<tr>
+<td>6. SSH into Sparks via IP or MagicDNS hostname</td>
+<td>Any operator device</td>
+<td>Ch 4</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="5" id="chapter-2-enrolling-the-spark-machines"><span
+class="header-section-number">5</span> Chapter 2: Enrolling the Spark
+Machines</h1>
+<p>This chapter covers everything that happens on the Spark machines
+themselves: installing Tailscale, enabling SSH mode, and authenticating
+each node to the fleet tailnet. Repeat these steps on both Spark
+machines before moving to Chapter 3.</p>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>SSH or physical access to each Spark running Ubuntu (ARM64)</li>
+<li>A Tailscale account on the fleet tailnet (admin account, not
+personal)</li>
+<li>Internet access from the Spark</li>
+</ul>
+<h2 data-number="5.1" id="step-1-install-tailscale"><span
+class="header-section-number">5.1</span> Step 1 — Install Tailscale</h2>
+<p>Tailscale provides a one-line installer. Run on each Spark:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://tailscale.com/install.sh <span class="kw">|</span> <span class="fu">sh</span></span></code></pre></div>
+<p>The script auto-detects Ubuntu ARM64 and installs from the official
+apt repository, then starts <code>tailscaled</code> as a systemd
+service.</p>
+<p>Verify the daemon is running:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status tailscaled</span></code></pre></div>
+<p>Expected output includes <code>Active: active (running)</code>.</p>
+<h2 data-number="5.2"
+id="step-2-bring-up-tailscale-with-ssh-mode-and-tag"><span
+class="header-section-number">5.2</span> Step 2 — Bring Up Tailscale
+with SSH Mode and Tag</h2>
+<p>Run <code>tailscale up</code> with two flags: <code>--ssh</code>
+enables Tailscale SSH, and <code>--advertise-tags=tag:spark</code>
+self-applies the ACL tag at enrollment time — no manual admin console
+click required.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span></code></pre></div>
+<p>The command prints a login URL:</p>
+<pre><code>To authenticate, visit:
+
+        https://login.tailscale.com/a/xxxxxxxxxxxxxxxx</code></pre>
+<blockquote>
+<p><strong>Open the URL in the fleet account browser.</strong> This URL
+must be opened in a browser signed into the <strong>fleet tailnet
+account</strong> — not a personal Tailscale account. If you sign into
+the wrong account, the machine joins the wrong tailnet and you will need
+to reauthenticate.</p>
+</blockquote>
+<p>After approving in the browser, the terminal shows:</p>
+<pre><code>Success.</code></pre>
+<p>The Spark is now on the tailnet with SSH enabled and
+<code>tag:spark</code> applied. Verify:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status</span></code></pre></div>
+<blockquote>
+<p><strong>tagOwners must be defined first.</strong> The
+<code>tag:spark</code> tag must be declared in the ACL policy’s
+<code>tagOwners</code> section before <code>--advertise-tags</code> will
+accept it. If you see an error, set up the ACL in Chapter 3 first, then
+re-run this command. Re-running on an already-connected machine simply
+re-applies the flags — no re-authentication needed.</p>
+</blockquote>
+<h3 data-number="5.2.1" id="what-each-flag-does"><span
+class="header-section-number">5.2.1</span> What each flag does</h3>
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--ssh</code></td>
+<td>Tailscale intercepts SSH on the tailnet interface; ACL policy
+becomes the sole auth check</td>
+</tr>
+<tr>
+<td><code>--advertise-tags=tag:spark</code></td>
+<td>Self-applies <code>tag:spark</code> at enrollment; no admin console
+click required</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="5.3"
+id="step-3-verify-the-tag-in-the-admin-console"><span
+class="header-section-number">5.3</span> Step 3 — Verify the Tag in the
+Admin Console</h2>
+<p>The <code>--advertise-tags</code> flag handles tagging automatically,
+but confirm it in the admin console:</p>
+<ol type="1">
+<li>Go to <strong>login.tailscale.com/admin/machines</strong></li>
+<li>Find your Spark in the machine list</li>
+<li>The <strong>Owner</strong> column should show
+<strong>tagged-devices</strong> (not your email) — tag is active</li>
+<li>Click the machine row → <strong>Machine details</strong> to see the
+full tag list</li>
+</ol>
+<p>If the tag is missing, click <strong>⋯ → Edit ACL tags</strong>, type
+<code>tag:spark</code> and confirm. Ensure <code>tagOwners</code> is
+defined in the ACL policy (Chapter 3).</p>
+<h3 data-number="5.3.1" id="what-tagging-does-to-node-key-expiry"><span
+class="header-section-number">5.3.1</span> What tagging does to node key
+expiry</h3>
+<table>
+<thead>
+<tr>
+<th>Device type</th>
+<th>Key expiry</th>
+<th>Re-auth required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Untagged (personal device)</td>
+<td>~180 days</td>
+<td>Yes — human login needed</td>
+</tr>
+<tr>
+<td>Tagged (server, e.g. <code>tag:spark</code>)</td>
+<td>Never</td>
+<td>No — automatic refresh</td>
+</tr>
+</tbody>
+</table>
+<p>Tagged devices never require re-authentication. This is the correct
+operational posture for any machine that must stay on the tailnet
+permanently.</p>
+<h3 data-number="5.3.2" id="checkpoint"><span
+class="header-section-number">5.3.2</span> Checkpoint</h3>
+<p>At the end of this chapter both Spark machines should:</p>
+<ul>
+<li>Have <code>tailscaled</code> running as a systemd service</li>
+<li>Be connected to the fleet tailnet with a <code>100.x.x.x</code>
+IP</li>
+<li>Have Tailscale SSH enabled (<code>--ssh</code> flag)</li>
+<li>Carry the <code>tag:spark</code> ACL tag in the admin console</li>
+</ul>
+<h1 data-number="6"
+id="chapter-3-configuring-access-control-policy"><span
+class="header-section-number">6</span> Chapter 3: Configuring Access
+Control Policy</h1>
+<p>Tailscale access control lives in a single JSON policy file managed
+through the admin console. This file is the source of truth for your
+entire tailnet. Every node checks this policy in real time — a change
+takes effect immediately without restarting daemons or rotating
+keys.</p>
+<h2 data-number="6.1" id="step-1-invite-users-to-the-tailnet"><span
+class="header-section-number">6.1</span> Step 1 — Invite Users to the
+Tailnet</h2>
+<p>Each person who needs SSH access must first join the fleet
+tailnet.</p>
+<p><strong>In the admin console:</strong></p>
+<ol type="1">
+<li>Go to <strong>login.tailscale.com/admin/users</strong></li>
+<li>Click <strong>Invite users</strong></li>
+<li>Enter the email address associated with the engineer’s Google,
+GitHub, or Microsoft account</li>
+<li>The engineer accepts the invitation using their existing login</li>
+</ol>
+<blockquote>
+<p><strong>Their login becomes their identity.</strong> The email the
+engineer uses to accept (e.g. <code>alice@gmail.com</code>) is what you
+reference in the ACL policy. Know which email they will use before
+writing the <code>groups</code> entry.</p>
+</blockquote>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 37%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th>Action</th>
+<th>How to do it</th>
+<th>Takes effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add a new operator</td>
+<td>Invite to tailnet + add login to <code>group:operators</code></td>
+<td>Immediately on ACL save</td>
+</tr>
+<tr>
+<td>Remove an operator</td>
+<td>Remove from tailnet or from <code>group:operators</code></td>
+<td>Immediately everywhere</td>
+</tr>
+<tr>
+<td>Temporarily suspend</td>
+<td>Remove from <code>group:operators</code> only</td>
+<td>Immediately</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="6.2" id="step-2-define-groups-and-tag-ownership"><span
+class="header-section-number">6.2</span> Step 2 — Define Groups and Tag
+Ownership</h2>
+<p>In the admin console, navigate to <strong>Access controls</strong>.
+Add the <code>groups</code> and <code>tagOwners</code> blocks:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;groups&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="er">//</span> <span class="er">Each</span> <span class="er">entry</span> <span class="er">is</span> <span class="er">a</span> <span class="er">Tailscale</span> <span class="er">login</span> <span class="er">(the</span> <span class="er">email</span> <span class="er">used</span> <span class="er">to</span> <span class="er">accept</span> <span class="er">the</span> <span class="er">invite).</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;group:operators&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;alice@gmail.com&quot;</span><span class="ot">,</span> <span class="st">&quot;bob@company.com&quot;</span><span class="ot">]</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span><span class="er">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;tagOwners&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="er">//</span> <span class="er">autogroup</span><span class="fu">:</span><span class="er">admin</span> <span class="er">means</span> <span class="er">only</span> <span class="er">tailnet</span> <span class="er">admins</span> <span class="er">can</span> <span class="er">apply</span> <span class="er">this</span> <span class="er">tag.</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;tag:spark&quot;</span><span class="er">:</span> <span class="ot">[</span><span class="st">&quot;autogroup:admin&quot;</span><span class="ot">]</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span><span class="er">,</span></span></code></pre></div>
+<blockquote>
+<p><strong>tagOwners must be declared before the tag is used.</strong>
+If you try to apply <code>tag:spark</code> before adding it to
+<code>tagOwners</code>, the console will reject it. Define
+<code>tagOwners</code> first, save, then apply the tag to machines
+(Chapter 2, Step 3).</p>
+</blockquote>
+<h2 data-number="6.3" id="step-3-write-the-ssh-accept-rule"><span
+class="header-section-number">6.3</span> Step 3 — Write the SSH Accept
+Rule</h2>
+<p>Add this block to the policy:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;ssh&quot;</span><span class="er">:</span> <span class="ot">[</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;action&quot;</span><span class="fu">:</span> <span class="st">&quot;accept&quot;</span><span class="fu">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;src&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;group:operators&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;dst&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;users&quot;</span><span class="fu">:</span>  <span class="ot">[</span><span class="st">&quot;stoke&quot;</span><span class="ot">]</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<p>Reading the rule: <em>people in <code>group:operators</code> may SSH
+into any machine tagged <code>tag:spark</code>, landing as Linux user
+<code>stoke</code>.</em></p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 30%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action</code></td>
+<td><code>"accept"</code></td>
+<td>Allow the connection</td>
+</tr>
+<tr>
+<td><code>src</code></td>
+<td><code>["group:operators"]</code></td>
+<td>Tailscale identities allowed to initiate SSH</td>
+</tr>
+<tr>
+<td><code>dst</code></td>
+<td><code>["tag:spark"]</code></td>
+<td>Any device carrying this tag</td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td><code>["stoke"]</code></td>
+<td>Linux user to log in as on the destination</td>
+</tr>
+</tbody>
+</table>
+<h3 data-number="6.3.1" id="why-tagspark-as-dst-is-powerful"><span
+class="header-section-number">6.3.1</span> Why tag:spark as dst is
+powerful</h3>
+<p>The destination is a tag, not a list of machine names or IPs. When
+you add a third DGX Spark and tag it <code>tag:spark</code>, it is
+instantly covered by this rule — no policy edit required.</p>
+<h3 data-number="6.3.2" id="complete-policy-example"><span
+class="header-section-number">6.3.2</span> Complete policy example</h3>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;groups&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;group:operators&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;alice@gmail.com&quot;</span><span class="ot">,</span> <span class="st">&quot;bob@company.com&quot;</span><span class="ot">]</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tagOwners&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tag:spark&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;autogroup:admin&quot;</span><span class="ot">]</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;acls&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;action&quot;</span><span class="fu">:</span> <span class="st">&quot;accept&quot;</span><span class="fu">,</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;src&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;group:operators&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;dst&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;tag:spark:*&quot;</span><span class="ot">]</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;ssh&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;action&quot;</span><span class="fu">:</span> <span class="st">&quot;accept&quot;</span><span class="fu">,</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;src&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;group:operators&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;dst&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;users&quot;</span><span class="fu">:</span>  <span class="ot">[</span><span class="st">&quot;stoke&quot;</span><span class="ot">]</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h1 data-number="7" id="chapter-4-client-setup-and-ssh-access"><span
+class="header-section-number">7</span> Chapter 4: Client Setup and SSH
+Access</h1>
+<p>This chapter covers setup from the operator’s perspective — the
+engineer SSHing into a Spark from their laptop. At this point the Sparks
+are enrolled and tagged (Chapter 2), and the ACL is configured (Chapter
+3).</p>
+<h2 data-number="7.1" id="step-1-install-tailscale-on-macos"><span
+class="header-section-number">7.1</span> Step 1 — Install Tailscale on
+macOS</h2>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install tailscale</span></code></pre></div>
+<p>Start the daemon:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> brew services start tailscale</span></code></pre></div>
+<h2 data-number="7.2" id="step-2-login-and-verify"><span
+class="header-section-number">7.2</span> Step 2 — Login and Verify</h2>
+<p>Authenticate to the tailnet:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> login</span></code></pre></div>
+<p>This opens a browser to the Tailscale login page. Sign in with the
+same account whose email is in <code>group:operators</code>. On
+success:</p>
+<pre><code>Success.</code></pre>
+<p>Connect to the tailnet:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> up</span></code></pre></div>
+<p>Check network status:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status</span></code></pre></div>
+<p>Expected output:</p>
+<pre><code>100.124.xx.xx  serverlesss-macbook-pro  mohnishbasha@   macOS  -
+100.109.xx.xx  spark-bundle1-1          tagged-devices  linux  -
+100.104.xx.xx  spark-bundle1-2          tagged-devices  linux  -
+100.70.xx.xx   spark-bundle2-1          tagged-devices  linux  -
+100.67.xx.xx   spark-bundle2-2          tagged-devices  linux  -</code></pre>
+<p>Confirm both Sparks carry <code>tag:spark</code>:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status <span class="at">--json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="st">&#39;.Peer[] | {name: .HostName, tags: .Tags}&#39;</span></span></code></pre></div>
+<p>Expected output:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;spark-bundle1-1&quot;</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tags&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;spark-bundle1-2&quot;</span><span class="fu">,</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tags&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;spark-bundle2-1&quot;</span><span class="fu">,</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tags&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;spark-bundle2-2&quot;</span><span class="fu">,</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tags&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>If a machine shows <code>"tags": null</code>, return to the admin
+console and apply the tag (Chapter 2, Step 3).</p>
+<h2 data-number="7.3" id="step-3-ssh-into-a-spark-node"><span
+class="header-section-number">7.3</span> Step 3 — SSH into a Spark
+Node</h2>
+<p>By Tailscale IP:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> ssh stoke@100.70.xx.xx</span></code></pre></div>
+<p>By MagicDNS hostname:</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> ssh stoke@spark-bundle2-2.tail8a84f6.ts.net</span></code></pre></div>
+<p>Or using plain ssh:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> stoke@100.70.xx.xx</span></code></pre></div>
+<p>A successful connection shows the DGX Spark welcome banner and drops
+you into a shell as <code>stoke</code>:</p>
+<pre><code>Welcome to Ubuntu 22.04.x LTS (GNU/Linux 6.x.x aarch64)
+
+stoke@spark-bundle2-2:~$</code></pre>
+<h2 data-number="7.4" id="summary"><span
+class="header-section-number">7.4</span> Summary</h2>
+<table>
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Capability</th>
+<th>How it works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SSH to spark-bundle2-1</td>
+<td><code>tailscale ssh stoke@100.67.xx.xx</code></td>
+</tr>
+<tr>
+<td>SSH to spark-bundle2-2</td>
+<td><code>tailscale ssh stoke@100.70.xx.xx</code> or hostname</td>
+</tr>
+<tr>
+<td>Add a new operator</td>
+<td>Invite to tailnet + add login to <code>group:operators</code></td>
+</tr>
+<tr>
+<td>Remove an operator</td>
+<td>Remove from tailnet — access revoked everywhere instantly</td>
+</tr>
+<tr>
+<td>Add a new Spark</td>
+<td>Enroll it + apply <code>tag:spark</code> — ACL covers it
+automatically</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="8" id="command-cheatsheet"><span
+class="header-section-number">8</span> Command Cheatsheet</h1>
+<h2 data-number="8.1" id="on-the-spark-machine-linux-ubuntu-arm64"><span
+class="header-section-number">8.1</span> On the Spark Machine (Linux /
+Ubuntu ARM64)</h2>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install Tailscale</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://tailscale.com/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Enable Tailscale with SSH mode, self-apply tag, and connect</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check daemon status</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status tailscaled</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify on the tailnet</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Check whether SSH mode is enabled</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> debug prefs <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> runssh</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Enable SSH mode and re-apply tag on an already-connected machine</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span></code></pre></div>
+<h2 data-number="8.2" id="on-the-operator-laptop-macos"><span
+class="header-section-number">8.2</span> On the Operator Laptop
+(macOS)</h2>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install Tailscale</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install tailscale</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Start the daemon</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> brew services start tailscale</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Restart the daemon (fix version mismatch warnings)</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> brew services restart tailscale</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Authenticate to the fleet tailnet</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> login</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to the tailnet</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> up</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Show all tailnet peers</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect peer tags (requires jq)</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status <span class="at">--json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="st">&#39;.Peer[] | {name: .HostName, tags: .Tags}&#39;</span></span></code></pre></div>
+<h2 data-number="8.3" id="ssh-commands"><span
+class="header-section-number">8.3</span> SSH Commands</h2>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SSH by Tailscale IP</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> ssh stoke@100.70.xx.xx</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> ssh stoke@100.67.xx.xx</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># SSH by MagicDNS hostname</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> ssh stoke@spark-bundle2-2.tail8a84f6.ts.net</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># SSH with plain ssh</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> stoke@100.70.xx.xx</span></code></pre></div>
+<h2 data-number="8.4" id="admin-console-quick-reference"><span
+class="header-section-number">8.4</span> Admin Console Quick
+Reference</h2>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr>
+<th>Task</th>
+<th>Admin Console Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Invite a user</td>
+<td>Users → Invite users</td>
+</tr>
+<tr>
+<td>Remove a user</td>
+<td>Users → (user) → Remove</td>
+</tr>
+<tr>
+<td>Edit ACL policy</td>
+<td>Access controls</td>
+</tr>
+<tr>
+<td>Apply tag to a machine</td>
+<td>Machines → (machine) → ⋯ → Edit ACL tags</td>
+</tr>
+<tr>
+<td>View Tailscale IP</td>
+<td>Machines → (machine row)</td>
+</tr>
+<tr>
+<td>View MagicDNS hostname</td>
+<td>Machines → (machine) → Machine details</td>
+</tr>
+<tr>
+<td>Check key expiry</td>
+<td>Machines → (machine) → Machine details → Key expiry</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="8.5" id="minimum-working-acl-policy"><span
+class="header-section-number">8.5</span> Minimum Working ACL Policy</h2>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;groups&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;group:operators&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;alice@gmail.com&quot;</span><span class="ot">,</span> <span class="st">&quot;bob@company.com&quot;</span><span class="ot">]</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tagOwners&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tag:spark&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;autogroup:admin&quot;</span><span class="ot">]</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;ssh&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;action&quot;</span><span class="fu">:</span> <span class="st">&quot;accept&quot;</span><span class="fu">,</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;src&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;group:operators&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;dst&quot;</span><span class="fu">:</span>    <span class="ot">[</span><span class="st">&quot;tag:spark&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;users&quot;</span><span class="fu">:</span>  <span class="ot">[</span><span class="st">&quot;stoke&quot;</span><span class="ot">]</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h1 data-number="9" id="troubleshooting"><span
+class="header-section-number">9</span> Troubleshooting</h1>
+<h2 data-number="9.1"
+id="permission-denied-when-sshing-into-a-spark"><span
+class="header-section-number">9.1</span> <code>permission denied</code>
+when SSHing into a Spark</h2>
+<p>The ACL policy does not grant your tailnet identity SSH access to the
+target machine. Work through this checklist:</p>
+<ol type="1">
+<li><p><strong>Is your Tailscale login in
+<code>group:operators</code>?</strong> Open Access controls and check
+the <code>groups</code> block. Your login email must appear there
+exactly as you authenticated.</p></li>
+<li><p><strong>Does the target machine carry
+<code>tag:spark</code>?</strong> Admin console → Machines. If no tag
+appears: ⋯ → Edit ACL tags → apply <code>tag:spark</code>. Verify
+with:</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> status <span class="at">--json</span> <span class="kw">|</span> <span class="ex">jq</span> <span class="st">&#39;.Peer[] | {name: .HostName, tags: .Tags}&#39;</span></span></code></pre></div></li>
+<li><p><strong>Is Tailscale SSH enabled on the Spark?</strong></p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> debug prefs <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> runssh</span></code></pre></div>
+<p>If <code>"RunSSH": false</code>:</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span></code></pre></div></li>
+<li><p><strong>Is the Spark visible on the tailnet?</strong> From your
+laptop: <code>tailscale status</code>. Both Spark hostnames should
+appear. If not, check the daemon on the machine:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status tailscaled</span></code></pre></div></li>
+</ol>
+<p>In our lab, <code>spark-bundle2-1</code> returned
+<code>permission denied</code> while <code>spark-bundle2-2</code> was
+accessible — the cause was that <code>spark-bundle2-1</code> had not yet
+been tagged. Applying <code>tag:spark</code> resolved it
+immediately.</p>
+<hr />
+<h2 data-number="9.2" id="clientserver-version-mismatch-warning"><span
+class="header-section-number">9.2</span> Client/server version mismatch
+warning</h2>
+<pre><code>Warning: client version &quot;1.102.2-...&quot; != tailscaled server version &quot;1.102.1-...&quot;</code></pre>
+<p>This is <strong>cosmetic</strong>. It appears when the CLI binary and
+daemon are on different patch versions. SSH and network connectivity are
+not affected.</p>
+<p>Fix on macOS:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> brew services restart tailscale</span></code></pre></div>
+<p>Fix on Linux:</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart tailscaled</span></code></pre></div>
+<hr />
+<h2 data-number="9.3"
+id="tailscale-ssh-is-not-enabled-on-this-machine"><span
+class="header-section-number">9.3</span> Tailscale SSH is not enabled on
+this machine</h2>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tailscale</span> debug prefs <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> runssh</span></code></pre></div>
+<p>If <code>"RunSSH": false</code>, enable it:</p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span></code></pre></div>
+<p>You do not need to re-authenticate. The command re-applies the flags
+to the existing connection.</p>
+<hr />
+<h2 data-number="9.4"
+id="a-spark-is-not-appearing-in-tailscale-status"><span
+class="header-section-number">9.4</span> A Spark is not appearing in
+<code>tailscale status</code></h2>
+<p>The machine has lost its connection. On the Spark:</p>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status tailscaled</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># If inactive:</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart tailscaled</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span></code></pre></div>
+<p>If you see “needs login” or an authentication URL, the node key may
+have expired. Authenticate again via the printed URL — though tagged
+devices should not expire. If a tagged device prompts for re-login,
+check that the tag is still applied in the admin console.</p>
+<hr />
+<h2 data-number="9.5"
+id="error-tagspark-is-not-defined-in-the-policy"><span
+class="header-section-number">9.5</span> Error: <code>tag:spark</code>
+is not defined in the policy</h2>
+<p>The admin console rejects tag application when the tag is not
+declared in <code>tagOwners</code>. Open Access controls and
+confirm:</p>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;tagOwners&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;tag:spark&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;autogroup:admin&quot;</span><span class="ot">]</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span><span class="er">,</span></span></code></pre></div>
+<p>Save the policy first, then apply the tag in Machines → Edit ACL
+tags.</p>
+<hr />
+<h2 data-number="9.6" id="machine-enrolled-in-the-wrong-tailnet"><span
+class="header-section-number">9.6</span> Machine enrolled in the wrong
+tailnet</h2>
+<p>If you opened the authentication URL in a browser signed into a
+personal account instead of the fleet account:</p>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Log out from the Spark</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale logout</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-enroll with the fleet account</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> tailscale up <span class="at">--ssh</span> <span class="at">--advertise-tags</span><span class="op">=</span>tag:spark</span></code></pre></div>
+<p>Open the new URL in a browser signed into the correct fleet tailnet
+account. Then remove the stray device from your personal tailnet via the
+admin console.</p>
+</body>
+</html>

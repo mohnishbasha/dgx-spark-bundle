@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Command Cheatsheet — Tailscale on DGX Spark Bundle</title>
+  <meta name="description" content="Quick-reference command cheatsheet for Tailscale on DGX Spark Bundle: install, login, status, SSH, tag inspection, daemon restart, and SSH mode verification.">
+  <meta name="author" content="Mohinish Shaikh, Pragadeesh VS">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/cheatsheet.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Command Cheatsheet — Tailscale on DGX Spark Bundle">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/cheatsheet.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">TS</span>
+          <span class="sidebar-title">Tailscale on DGX Spark</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Pragadeesh VS · August 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+
+        <div class="nav-section-label">Part I — Fleet Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-problem" class="nav-item nav-sub">The Networking Problem</a>
+        <a href="chapter-01.html#ch1-how" class="nav-item nav-sub">How Tailscale Works</a>
+        <a href="chapter-01.html#ch1-arch" class="nav-item nav-sub">Architecture Overview</a>
+
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Enroll the Sparks</a>
+        <a href="chapter-02.html#ch2-install" class="nav-item nav-sub">Install Tailscale</a>
+        <a href="chapter-02.html#ch2-ssh" class="nav-item nav-sub">Enable SSH Mode</a>
+        <a href="chapter-02.html#ch2-tag" class="nav-item nav-sub">Apply the Tag</a>
+
+        <div class="nav-section-label">Part II — Access Control</div>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — ACL Policy</a>
+        <a href="chapter-03.html#ch3-invite" class="nav-item nav-sub">Invite Users</a>
+        <a href="chapter-03.html#ch3-groups" class="nav-item nav-sub">Groups &amp; Tags</a>
+        <a href="chapter-03.html#ch3-ssh-rule" class="nav-item nav-sub">SSH Rule</a>
+
+        <a href="chapter-04.html" class="nav-item">Ch 4 — Client &amp; SSH</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install on macOS</a>
+        <a href="chapter-04.html#ch4-login" class="nav-item nav-sub">Login &amp; Verify</a>
+        <a href="chapter-04.html#ch4-ssh" class="nav-item nav-sub">SSH into Sparks</a>
+
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">Tailscale on DGX Spark</a> /
+            <span>Cheatsheet</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/Ebook_Tailscale_on_DGX_Spark_Bundle.pdf" class="btn-download" aria-label="Download PDF" download="Ebook_Tailscale_on_DGX_Spark_Bundle.pdf">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+
+          <section id="cheatsheet" class="chapter-section" aria-labelledby="cheatsheet-title">
+            <div class="chapter-label">Back Matter</div>
+            <h1 id="cheatsheet-title">Command Cheatsheet</h1>
+            <p>Quick reference for every Tailscale command used in this book, organized by context.</p>
+
+            <h2>On the Spark Machine (Linux / Ubuntu ARM64)</h2>
+
+            <h3>Install Tailscale</h3>
+            <pre><code>curl -fsSL https://tailscale.com/install.sh | sh</code></pre>
+
+            <h3>Enable Tailscale with SSH mode and connect</h3>
+            <pre><code>sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre>
+
+            <h3>Check daemon status</h3>
+            <pre><code>sudo systemctl status tailscaled</code></pre>
+
+            <h3>Verify this machine is on the tailnet</h3>
+            <pre><code>tailscale status</code></pre>
+
+            <h3>Check whether SSH mode is enabled</h3>
+            <pre><code>tailscale debug prefs | grep -i runssh</code></pre>
+            <p><code>"RunSSH": true</code> means this machine accepts inbound Tailscale SSH. If you see <code>false</code>, run <code>sudo tailscale up --ssh --advertise-tags=tag:spark</code> again.</p>
+
+            <h3>Enable SSH mode on an already-connected machine</h3>
+            <pre><code>sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre>
+
+            <hr>
+
+            <h2>On the Operator Laptop (macOS)</h2>
+
+            <h3>Install Tailscale</h3>
+            <pre><code>brew install tailscale</code></pre>
+
+            <h3>Start the daemon</h3>
+            <pre><code>sudo brew services start tailscale</code></pre>
+
+            <h3>Restart the daemon (fix version mismatch warnings)</h3>
+            <pre><code>sudo brew services restart tailscale</code></pre>
+
+            <h3>Authenticate to the fleet tailnet</h3>
+            <pre><code>tailscale login</code></pre>
+
+            <h3>Connect to the tailnet</h3>
+            <pre><code>tailscale up</code></pre>
+
+            <h3>Show all tailnet peers</h3>
+            <pre><code>tailscale status</code></pre>
+
+            <h3>Inspect peer tags (requires jq)</h3>
+            <pre><code>tailscale status --json | jq '.Peer[] | {name: .HostName, tags: .Tags}'</code></pre>
+
+            <hr>
+
+            <h2>SSH Commands</h2>
+
+            <h3>SSH by Tailscale IP (via tailscale ssh)</h3>
+            <pre><code>tailscale ssh stoke@100.70.xx.xx
+tailscale ssh stoke@100.67.xx.xx</code></pre>
+
+            <h3>SSH by MagicDNS hostname</h3>
+            <pre><code>tailscale ssh stoke@spark-bundle2-2.tail8a84f6.ts.net
+tailscale ssh stoke@spark-bundle2-1.tail8a84f6.ts.net</code></pre>
+
+            <h3>SSH with plain ssh (after tailscale up)</h3>
+            <pre><code>ssh stoke@100.70.xx.xx</code></pre>
+
+            <hr>
+
+            <h2>Admin Console Quick Reference</h2>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Task</th><th>Admin Console Path</th></tr></thead>
+                <tbody>
+                  <tr><td>Invite a user</td><td>Users → Invite users</td></tr>
+                  <tr><td>Remove a user</td><td>Users → (user) → Remove</td></tr>
+                  <tr><td>Edit ACL policy</td><td>Access controls</td></tr>
+                  <tr><td>Apply tag to a machine</td><td>Machines → (machine) → ⋯ → Edit ACL tags</td></tr>
+                  <tr><td>View machine Tailscale IP</td><td>Machines → (machine row)</td></tr>
+                  <tr><td>View MagicDNS hostname</td><td>Machines → (machine) → Machine details</td></tr>
+                  <tr><td>Check key expiry</td><td>Machines → (machine) → Machine details → Key expiry</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <hr>
+
+            <h2>ACL Policy Snippets</h2>
+
+            <h3>Minimum working policy for this book</h3>
+            <pre><code>{
+  "groups": {
+    "group:operators": ["alice@gmail.com", "bob@company.com"]
+  },
+  "tagOwners": {
+    "tag:spark": ["autogroup:admin"]
+  },
+  "ssh": [
+    {
+      "action": "accept",
+      "src":    ["group:operators"],
+      "dst":    ["tag:spark"],
+      "users":  ["stoke"]
+    }
+  ]
+}</code></pre>
+
+            <h3>Add a new operator</h3>
+            <pre><code>// In the "groups" section, add their Tailscale login email:
+"group:operators": ["alice@gmail.com", "bob@company.com", "carol@company.com"]</code></pre>
+
+            <h3>Restrict one operator to a single Spark</h3>
+            <pre><code>// Give that Spark a unique tag:
+"tagOwners": {
+  "tag:spark":     ["autogroup:admin"],
+  "tag:spark-dev": ["autogroup:admin"]
+},
+// Add a scoped SSH rule:
+"ssh": [
+  { "action": "accept", "src": ["group:operators"], "dst": ["tag:spark"],     "users": ["stoke"] },
+  { "action": "accept", "src": ["carol@company.com"], "dst": ["tag:spark-dev"], "users": ["stoke"] }
+]</code></pre>
+
+            <div class="chapter-nav">
+              <a href="chapter-04.html" class="chapter-nav-btn prev">
+                <div>
+                  <span class="nav-btn-label">← Previous</span>
+                  <span class="nav-btn-title">Ch 4: Client &amp; SSH</span>
+                </div>
+              </a>
+              <a href="troubleshooting.html" class="chapter-nav-btn next">
+                <div>
+                  <span class="nav-btn-label">Next →</span>
+                  <span class="nav-btn-title">Troubleshooting</span>
+                </div>
+              </a>
+            </div>
+          </section>
+
+        </div><!-- .content-area -->
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          <strong>Tailscale on DGX Spark Bundle</strong> · Cheatsheet ·
+          <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp;
+          <a href="https://www.linkedin.com/in/pragadeeshvs/" rel="author noopener" target="_blank">Pragadeesh VS</a>
+        </p>
+        <p style="margin-top: 8px;">
+          <a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> ·
+          <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> ·
+          Licensed under CC BY 4.0
+        </p>
+      </footer>
+    </div><!-- .main -->
+  </div><!-- .layout -->
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); menuBtn.setAttribute('aria-expanded','true'); overlay.setAttribute('aria-hidden','false'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); overlay.setAttribute('aria-hidden','true'); }
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => { if ((l.getAttribute('href')||'').split('#')[0] === page) l.classList.add('active'); });
+    })();
+    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (!e.isIntersecting) return; const id = e.target.id; sidebar.querySelectorAll('.nav-item').forEach(l => { const href = l.getAttribute('href')||''; if (href.includes('#')) l.classList.toggle('active', href.split('#')[1] === id); }); }); }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+  </script>
+</body>
+</html>

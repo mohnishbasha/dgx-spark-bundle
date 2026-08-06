@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Troubleshooting — Tailscale on DGX Spark Bundle</title>
+  <meta name="description" content="Troubleshooting guide for Tailscale on DGX Spark Bundle: permission denied on SSH, client/server version mismatch, SSH not enabled, machine not appearing in status, and ACL tag errors.">
+  <meta name="author" content="Mohinish Shaikh, Pragadeesh VS">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/troubleshooting.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Troubleshooting — Tailscale on DGX Spark Bundle">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/troubleshooting.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why does SSH return 'permission denied' on a Tailscale-connected Spark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The most likely cause is that the ACL policy does not grant your Tailscale identity SSH access to the destination machine. Verify that your login is in group:operators and that the machine carries tag:spark in the admin console."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does 'client version != tailscaled server version' mean in Tailscale?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This is a cosmetic warning that appears when the CLI binary and the background daemon are on different patch versions. It does not affect functionality. Fix it by restarting the daemon: sudo brew services restart tailscale on macOS, or sudo systemctl restart tailscaled on Linux."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I check whether Tailscale SSH is enabled on a DGX Spark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Run: tailscale debug prefs | grep -i runssh. If RunSSH is false, enable it with: sudo tailscale up --ssh --advertise-tags=tag:spark. You do not need to re-authenticate; this re-applies the flags to the existing connection."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">TS</span>
+          <span class="sidebar-title">Tailscale on DGX Spark</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Pragadeesh VS · August 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+
+        <div class="nav-section-label">Part I — Fleet Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-problem" class="nav-item nav-sub">The Networking Problem</a>
+        <a href="chapter-01.html#ch1-how" class="nav-item nav-sub">How Tailscale Works</a>
+        <a href="chapter-01.html#ch1-arch" class="nav-item nav-sub">Architecture Overview</a>
+
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Enroll the Sparks</a>
+        <a href="chapter-02.html#ch2-install" class="nav-item nav-sub">Install Tailscale</a>
+        <a href="chapter-02.html#ch2-ssh" class="nav-item nav-sub">Enable SSH Mode</a>
+        <a href="chapter-02.html#ch2-tag" class="nav-item nav-sub">Apply the Tag</a>
+
+        <div class="nav-section-label">Part II — Access Control</div>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — ACL Policy</a>
+        <a href="chapter-03.html#ch3-invite" class="nav-item nav-sub">Invite Users</a>
+        <a href="chapter-03.html#ch3-groups" class="nav-item nav-sub">Groups &amp; Tags</a>
+        <a href="chapter-03.html#ch3-ssh-rule" class="nav-item nav-sub">SSH Rule</a>
+
+        <a href="chapter-04.html" class="nav-item">Ch 4 — Client &amp; SSH</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install on macOS</a>
+        <a href="chapter-04.html#ch4-login" class="nav-item nav-sub">Login &amp; Verify</a>
+        <a href="chapter-04.html#ch4-ssh" class="nav-item nav-sub">SSH into Sparks</a>
+
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">Tailscale on DGX Spark</a> /
+            <span>Troubleshooting</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/Ebook_Tailscale_on_DGX_Spark_Bundle.pdf" class="btn-download" aria-label="Download PDF" download="Ebook_Tailscale_on_DGX_Spark_Bundle.pdf">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+
+          <section id="troubleshooting" class="chapter-section" aria-labelledby="ts-title">
+            <div class="chapter-label">Back Matter</div>
+            <h1 id="ts-title">Troubleshooting</h1>
+            <p>Issues encountered with Tailscale on DGX Spark, and how to resolve them.</p>
+
+            <div class="faq-section">
+
+              <details class="faq-item" id="ts-permission-denied">
+                <summary class="faq-question">
+                  <code>permission denied</code> when SSHing into a Spark
+                  <svg class="faq-chevron" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>The ACL policy does not grant your tailnet identity SSH access to the target machine. Work through this checklist:</p>
+                  <ol>
+                    <li><strong>Is your Tailscale login in <code>group:operators</code>?</strong><br>
+                    Open the admin console → Access controls. Find the <code>groups</code> block. Your login email must appear there exactly as you authenticated with Tailscale.</li>
+                    <li><strong>Does the target machine carry <code>tag:spark</code>?</strong><br>
+                    Admin console → Machines → find the Spark. If no tag appears, go to ⋯ → Edit ACL tags and apply <code>tag:spark</code>. Verify with:
+                    <pre><code>tailscale status --json | jq '.Peer[] | {name: .HostName, tags: .Tags}'</code></pre></li>
+                    <li><strong>Is Tailscale SSH enabled on the Spark?</strong><br>
+                    SSH into the Spark via another path (LAN or physical access) and check:
+                    <pre><code>tailscale debug prefs | grep -i runssh</code></pre>
+                    If <code>"RunSSH": false</code>, enable it:
+                    <pre><code>sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre></li>
+                    <li><strong>Is the Spark visible on the tailnet?</strong><br>
+                    From your laptop: <code>tailscale status</code>. Both Spark hostnames should appear. If not, the Spark may have lost its connection — check <code>sudo systemctl status tailscaled</code> on the machine.</li>
+                  </ol>
+                  <p>In our lab, <code>spark-bundle2-1</code> returned <code>permission denied</code> while <code>spark-bundle2-2</code> was accessible — the cause was that <code>spark-bundle2-1</code> had not yet been tagged. Applying <code>tag:spark</code> in the admin console resolved it immediately.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" id="ts-version-mismatch">
+                <summary class="faq-question">
+                  Client/server version mismatch warning
+                  <svg class="faq-chevron" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>You see something like:</p>
+                  <pre><code>Warning: client version "1.102.2-t3b69c7bd6-g..." != tailscaled server version "1.102.1-t3b69c7bd6-g..."</code></pre>
+                  <p><strong>This is cosmetic.</strong> It appears when the <code>tailscale</code> CLI binary and the <code>tailscaled</code> background daemon are on slightly different patch versions — typically after a Homebrew update upgrades the CLI but the daemon has not restarted yet.</p>
+                  <p>Fix on macOS:</p>
+                  <pre><code>sudo brew services restart tailscale</code></pre>
+                  <p>Fix on Linux:</p>
+                  <pre><code>sudo systemctl restart tailscaled</code></pre>
+                  <p>After restarting, both versions will match and the warning disappears. SSH and network connectivity are not affected while the warning is present.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" id="ts-ssh-not-enabled">
+                <summary class="faq-question">
+                  Tailscale SSH is not enabled on this machine
+                  <svg class="faq-chevron" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>Check the current SSH mode state:</p>
+                  <pre><code>tailscale debug prefs | grep -i runssh</code></pre>
+                  <p>If the output is <code>"RunSSH": false</code>, the machine is on the tailnet but will not accept inbound SSH connections through Tailscale. Enable it:</p>
+                  <pre><code>sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre>
+                  <p>You do not need to re-authenticate. The command re-applies the <code>--ssh</code> flag to the existing connection.</p>
+                  <p>Verify after:</p>
+                  <pre><code>tailscale debug prefs | grep -i runssh
+# Expected: "RunSSH": true</code></pre>
+                </div>
+              </details>
+
+              <details class="faq-item" id="ts-machine-not-visible">
+                <summary class="faq-question">
+                  A Spark is not appearing in <code>tailscale status</code>
+                  <svg class="faq-chevron" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>If a machine that should be on the tailnet does not appear in <code>tailscale status</code> from another peer, it has lost its connection. On the Spark:</p>
+                  <ol>
+                    <li>Check the daemon:
+                    <pre><code>sudo systemctl status tailscaled</code></pre></li>
+                    <li>If inactive, restart it:
+                    <pre><code>sudo systemctl restart tailscaled
+sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre></li>
+                    <li>If you see "needs login" or an authentication URL, the node key may have expired. Authenticate again via the printed URL — though note that tagged devices should not expire. If a tagged device is prompting for re-login, check that the tag is still applied in the admin console.</li>
+                  </ol>
+                </div>
+              </details>
+
+              <details class="faq-item" id="ts-tag-undefined">
+                <summary class="faq-question">
+                  Error: <code>tag:spark</code> is not defined in the policy
+                  <svg class="faq-chevron" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>The admin console rejects tag application when the tag is not declared in <code>tagOwners</code>. Open Access controls and confirm this block exists:</p>
+                  <pre><code>"tagOwners": {
+  "tag:spark": ["autogroup:admin"]
+},</code></pre>
+                  <p>Save the policy first, then return to Machines → Edit ACL tags and apply <code>tag:spark</code>. The error should not reappear once the <code>tagOwners</code> entry is present.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" id="ts-wrong-tailnet">
+                <summary class="faq-question">
+                  Machine enrolled in the wrong tailnet
+                  <svg class="faq-chevron" viewBox="0 0 20 20"><path d="M5 7l5 5 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>If you opened the authentication URL in a browser signed into a personal Tailscale account instead of the fleet account, the machine joined the wrong tailnet. To fix it:</p>
+                  <ol>
+                    <li>Log out from the Spark:
+                    <pre><code>sudo tailscale logout</code></pre></li>
+                    <li>Re-enroll with the fleet account:
+                    <pre><code>sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre></li>
+                    <li>Open the new URL in a browser signed into the correct fleet tailnet account.</li>
+                  </ol>
+                  <p>After this, remove the stray device from your personal tailnet via the admin console at login.tailscale.com/admin/machines.</p>
+                </div>
+              </details>
+
+            </div><!-- .faq-section -->
+
+            <div class="chapter-nav">
+              <a href="cheatsheet.html" class="chapter-nav-btn prev">
+                <div>
+                  <span class="nav-btn-label">← Previous</span>
+                  <span class="nav-btn-title">Command Cheatsheet</span>
+                </div>
+              </a>
+              <a href="index.html" class="chapter-nav-btn next">
+                <div>
+                  <span class="nav-btn-label">Back to Start →</span>
+                  <span class="nav-btn-title">Cover &amp; Contents</span>
+                </div>
+              </a>
+            </div>
+          </section>
+
+        </div><!-- .content-area -->
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          <strong>Tailscale on DGX Spark Bundle</strong> · Troubleshooting ·
+          <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp;
+          <a href="https://www.linkedin.com/in/pragadeeshvs/" rel="author noopener" target="_blank">Pragadeesh VS</a>
+        </p>
+        <p style="margin-top: 8px;">
+          <a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> ·
+          <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> ·
+          Licensed under CC BY 4.0
+        </p>
+      </footer>
+    </div><!-- .main -->
+  </div><!-- .layout -->
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); menuBtn.setAttribute('aria-expanded','true'); overlay.setAttribute('aria-hidden','false'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); overlay.setAttribute('aria-hidden','true'); }
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => { if ((l.getAttribute('href')||'').split('#')[0] === page) l.classList.add('active'); });
+    })();
+    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (!e.isIntersecting) return; const id = e.target.id; sidebar.querySelectorAll('.nav-item').forEach(l => { const href = l.getAttribute('href')||''; if (href.includes('#')) l.classList.toggle('active', href.split('#')[1] === id); }); }); }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 1: Introduction — Tailscale on DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 1: The networking problem with DGX Spark fleet management. How Tailscale solves SSH access with WireGuard, tailnet concepts, and architecture overview.">
+  <meta name="keywords" content="Tailscale, NVIDIA DGX Spark, WireGuard mesh, tailnet, zero-trust networking, SSH, MagicDNS">
+  <meta name="author" content="Mohinish Shaikh, Pragadeesh VS">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-01.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 1: Introduction — Tailscale on DGX Spark Bundle">
+  <meta property="og:description" content="The networking problem with DGX Spark fleet management and how Tailscale solves it with a WireGuard mesh tailnet.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-01.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 1: Introduction — Tailscale on DGX Spark Bundle">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Introduction: The Networking Problem",
+    "position": 1,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-01.html",
+    "isPartOf": {
+      "@type": "Book",
+      "name": "Tailscale on DGX Spark Bundle",
+      "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/"
+    },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Pragadeesh VS" }]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Serverless Ventures", "item": "https://www.serverlessvc.com" },
+      { "@type": "ListItem", "position": 2, "name": "DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle" },
+      { "@type": "ListItem", "position": 3, "name": "Tailscale on DGX Spark Bundle", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/" },
+      { "@type": "ListItem", "position": 4, "name": "Chapter 1: Introduction", "item": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-01.html" }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">TS</span>
+          <span class="sidebar-title">Tailscale on DGX Spark</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Pragadeesh VS · August 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+
+        <div class="nav-section-label">Part I — Fleet Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-problem" class="nav-item nav-sub">The Networking Problem</a>
+        <a href="chapter-01.html#ch1-how" class="nav-item nav-sub">How Tailscale Works</a>
+        <a href="chapter-01.html#ch1-arch" class="nav-item nav-sub">Architecture Overview</a>
+
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Enroll the Sparks</a>
+        <a href="chapter-02.html#ch2-install" class="nav-item nav-sub">Install Tailscale</a>
+        <a href="chapter-02.html#ch2-ssh" class="nav-item nav-sub">Enable SSH Mode</a>
+        <a href="chapter-02.html#ch2-tag" class="nav-item nav-sub">Apply the Tag</a>
+
+        <div class="nav-section-label">Part II — Access Control</div>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — ACL Policy</a>
+        <a href="chapter-03.html#ch3-invite" class="nav-item nav-sub">Invite Users</a>
+        <a href="chapter-03.html#ch3-groups" class="nav-item nav-sub">Groups &amp; Tags</a>
+        <a href="chapter-03.html#ch3-ssh-rule" class="nav-item nav-sub">SSH Rule</a>
+
+        <a href="chapter-04.html" class="nav-item">Ch 4 — Client &amp; SSH</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install on macOS</a>
+        <a href="chapter-04.html#ch4-login" class="nav-item nav-sub">Login &amp; Verify</a>
+        <a href="chapter-04.html#ch4-ssh" class="nav-item nav-sub">SSH into Sparks</a>
+
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">Tailscale on DGX Spark</a> /
+            <span>Ch 1: Introduction</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/Ebook_Tailscale_on_DGX_Spark_Bundle.pdf" class="btn-download" aria-label="Download PDF" download="Ebook_Tailscale_on_DGX_Spark_Bundle.pdf">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+
+          <section id="ch1-intro" class="chapter-section" aria-labelledby="ch1-title">
+            <div class="chapter-label">Chapter 1 · Part I — Fleet Setup</div>
+            <h1 id="ch1-title">Introduction: The Networking Problem</h1>
+            <p>You have two NVIDIA DGX Spark machines. They are powerful, quiet, and ready to run frontier-scale AI workloads. The only question is: how do you — and your team — actually get into them?</p>
+            <p>The classic answer is SSH keys distributed to everyone who needs access, firewall rules punched through for each machine, and a growing spreadsheet of who has which key on which laptop. That works fine for one machine and one person. For a small AI fleet accessed by multiple engineers, it becomes operational debt almost immediately.</p>
+          </section>
+
+          <section id="ch1-problem" class="chapter-section" aria-labelledby="ch1-problem-title">
+            <h2 id="ch1-problem-title">The Networking Problem with a DGX Fleet</h2>
+            <p>A two-node DGX Spark setup has a deceptively simple surface area, but the networking headaches compound quickly:</p>
+            <ul>
+              <li><strong>Static IPs change.</strong> If your lab network changes, every SSH config and firewall rule must be updated.</li>
+              <li><strong>Key rotation is manual.</strong> When someone leaves, you must log into every machine and remove their key — a step that is easy to miss under pressure.</li>
+              <li><strong>VPN complexity.</strong> Traditional VPNs introduce a hub-and-spoke bottleneck; all traffic routes through a central server even when two peers are on the same LAN.</li>
+              <li><strong>No audit trail.</strong> Vanilla SSH gives you auth logs, but not a centralized view of who can reach what.</li>
+            </ul>
+            <div class="callout callout-warning">
+              <div class="callout-title">The invisible risk</div>
+              The worst outcome is not a breach — it is a former team member whose key was never removed, silently retaining access to machines running proprietary models for months.
+            </div>
+
+            <h2>What You Want Instead</h2>
+            <p>You want a system where:</p>
+            <ul>
+              <li>Any authorized engineer can SSH into any Spark from any device — laptop, desktop, or cloud VM — without exchanging keys manually.</li>
+              <li>Access is controlled by identity, not by which machine the engineer happens to be on.</li>
+              <li>Revoking access for one person immediately and completely is a single admin action.</li>
+              <li>Adding a new Spark to the fleet automatically falls under the same access rules as every existing one.</li>
+            </ul>
+            <p>That is exactly what Tailscale delivers.</p>
+          </section>
+
+          <section id="ch1-how" class="chapter-section" aria-labelledby="ch1-how-title">
+            <h2 id="ch1-how-title">How Tailscale Works</h2>
+            <p>Tailscale builds a <strong>tailnet</strong> — a private WireGuard mesh network — across all your enrolled devices. WireGuard handles the encrypted tunnels; Tailscale handles the key exchange and peer discovery so you never have to configure WireGuard directly.</p>
+
+            <div class="stack-grid">
+              <div class="stack-card">
+                <span class="stack-card-icon">🔐</span>
+                <div class="stack-card-name">WireGuard</div>
+                <div class="stack-card-desc">Modern, audited VPN protocol. All traffic between tailnet peers is encrypted end-to-end with WireGuard tunnels. Tailscale manages the key rotation automatically.</div>
+                <span class="stack-card-version">kernel module</span>
+              </div>
+              <div class="stack-card">
+                <span class="stack-card-icon">🆔</span>
+                <div class="stack-card-name">Identity</div>
+                <div class="stack-card-desc">Each user authenticates with an existing identity provider (Google, GitHub, Microsoft, etc.). No new credentials to create or manage.</div>
+                <span class="stack-card-version">OAuth / OIDC</span>
+              </div>
+              <div class="stack-card">
+                <span class="stack-card-icon">📋</span>
+                <div class="stack-card-name">ACL Policy</div>
+                <div class="stack-card-desc">A single JSON file in the admin console declares who can reach what. Groups, tags, and SSH rules are all expressed here. The policy is enforced on every node.</div>
+                <span class="stack-card-version">HuJSON</span>
+              </div>
+              <div class="stack-card">
+                <span class="stack-card-icon">🌐</span>
+                <div class="stack-card-name">MagicDNS</div>
+                <div class="stack-card-desc">Every device on the tailnet gets a stable hostname (e.g. <code>spark-bundle2-2.tail8a84f6.ts.net</code>) that resolves to its Tailscale IP regardless of where the machine physically is.</div>
+                <span class="stack-card-version">100.x.x.x range</span>
+              </div>
+            </div>
+
+            <h3>Tailscale SSH</h3>
+            <p>The feature used in this runbook is <strong>Tailscale SSH</strong>. When you start Tailscale with <code>--ssh</code>, it intercepts port 22 on the tailnet interface and replaces password/key authentication with tailnet identity checks. The ACL policy is the only authorization mechanism — no <code>~/.ssh/authorized_keys</code> required.</p>
+
+            <div class="callout callout-note">
+              <div class="callout-title">No keys, no passwords</div>
+              After setup, SSH access looks like: <code>ssh stoke@spark-bundle2-2.tail8a84f6.ts.net</code>. No key to specify, no password prompt. The only question the system asks is "is this device on the tailnet and does the ACL allow it to SSH here?" If yes, you're in.
+            </div>
+          </section>
+
+          <section id="ch1-arch" class="chapter-section" aria-labelledby="ch1-arch-title">
+            <h2 id="ch1-arch-title">Architecture Overview</h2>
+            <p>The complete setup has three layers of actors: machines, users, and policy.</p>
+
+            <div class="arch-diagram">
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                  TAILNET                                      │
+│                                                                               │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────────┐  │
+│  │ spark-bundle1-1 │  │ spark-bundle1-2 │  │ spark-bundle2-1 │  │ spark-bundle2-2  │  │
+│  │ 100.109.xx.xx   │  │ 100.104.xx.xx   │  │ 100.70.xx.xx    │  │ 100.67.xx.xx     │  │
+│  │ tag:spark       │  │ tag:spark       │  │ tag:spark       │  │ tag:spark        │  │
+│  │ TS SSH ✓        │  │ TS SSH ✓        │  │ TS SSH ✓        │  │ TS SSH ✓         │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  └────────┬─────────┘  │
+│           └───────────────────┴──────────────────────┴──────────WireGuard┘             │
+│                                         ▲                                               │
+│                          ACL: group:operators may SSH → tag:spark                       │
+│                          as user: stoke                                                 │
+│                                         │                                               │
+│  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  macOS laptop  100.124.xx.xx   mohnishbasha@  (group:operators member)            │  │
+│  └───────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                               │
+└─────────────────────────────────────────────────────────────────┘
+            </div>
+
+            <p>Reading this diagram:</p>
+            <ul>
+              <li>Both Spark machines carry the ACL tag <code>tag:spark</code>. One tag rule in the policy covers both — and every future Spark you enroll.</li>
+              <li>The engineer's laptop is enrolled as a regular device under their Tailscale login. It is automatically a member of <code>group:operators</code> once their login is added to that group in the ACL.</li>
+              <li>All three devices communicate over encrypted WireGuard tunnels within the tailnet. No traffic goes through a central server if they can reach each other directly (NAT traversal is handled automatically).</li>
+            </ul>
+
+            <h3>Roles in this Setup</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Role</th><th>Who</th><th>What they can do</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Tailnet Admin</strong></td><td>Account owner</td><td>Invite users, edit ACL policy, manage machine tags</td></tr>
+                  <tr><td><strong>Operator</strong></td><td>Engineers in <code>group:operators</code></td><td>SSH into any <code>tag:spark</code> machine as <code>stoke</code></td></tr>
+                  <tr><td><strong>Spark machine</strong></td><td>DGX Spark nodes</td><td>Accept SSH from authorized operators via tailnet identity</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Setup Sequence</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Step</th><th>Where</th><th>Chapter</th></tr></thead>
+                <tbody>
+                  <tr><td>1. Install Tailscale &amp; enable SSH on each Spark</td><td>Terminal on each Spark</td><td><a href="chapter-02.html">Ch 2</a></td></tr>
+                  <tr><td>2. Apply <code>tag:spark</code> to each machine</td><td>Tailscale admin console</td><td><a href="chapter-02.html">Ch 2</a></td></tr>
+                  <tr><td>3. Invite operators to the tailnet</td><td>Tailscale admin console</td><td><a href="chapter-03.html">Ch 3</a></td></tr>
+                  <tr><td>4. Define groups, tags, and SSH rule in ACL</td><td>Tailscale admin console</td><td><a href="chapter-03.html">Ch 3</a></td></tr>
+                  <tr><td>5. Install Tailscale on operator laptops, login</td><td>Each operator's machine</td><td><a href="chapter-04.html">Ch 4</a></td></tr>
+                  <tr><td>6. SSH into Sparks via IP or MagicDNS hostname</td><td>Any operator device</td><td><a href="chapter-04.html">Ch 4</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="chapter-nav">
+              <a href="index.html" class="chapter-nav-btn prev">
+                <div>
+                  <span class="nav-btn-label">← Back</span>
+                  <span class="nav-btn-title">Cover &amp; Contents</span>
+                </div>
+              </a>
+              <a href="chapter-02.html" class="chapter-nav-btn next">
+                <div>
+                  <span class="nav-btn-label">Next Chapter →</span>
+                  <span class="nav-btn-title">Ch 2: Enroll the Sparks</span>
+                </div>
+              </a>
+            </div>
+          </section>
+
+        </div><!-- .content-area -->
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          <strong>Tailscale on DGX Spark Bundle</strong> · Chapter 1 ·
+          <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp;
+          <a href="https://www.linkedin.com/in/pragadeeshvs/" rel="author noopener" target="_blank">Pragadeesh VS</a>
+        </p>
+        <p style="margin-top: 8px;">
+          <a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> ·
+          <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> ·
+          Licensed under CC BY 4.0
+        </p>
+      </footer>
+    </div><!-- .main -->
+  </div><!-- .layout -->
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); menuBtn.setAttribute('aria-expanded','true'); overlay.setAttribute('aria-hidden','false'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); overlay.setAttribute('aria-hidden','true'); }
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => { if ((l.getAttribute('href')||'').split('#')[0] === page) l.classList.add('active'); });
+    })();
+    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (!e.isIntersecting) return; const id = e.target.id; sidebar.querySelectorAll('.nav-item').forEach(l => { const href = l.getAttribute('href')||''; if (href.includes('#')) l.classList.toggle('active', href.split('#')[1] === id); }); }); }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+  </script>
+</body>
+</html>

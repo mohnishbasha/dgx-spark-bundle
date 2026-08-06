@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 3: Configuring Access Control Policy — Tailscale on DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 3: Configure Tailscale ACL policy to define group:operators, tagOwners for tag:spark, and an SSH accept rule that grants password-free access to DGX Spark machines.">
+  <meta name="keywords" content="Tailscale ACL policy, group:operators, tagOwners, SSH accept rule, tag:spark, Tailscale admin console, HuJSON, zero-trust SSH">
+  <meta name="author" content="Mohinish Shaikh, Pragadeesh VS">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-03.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 3: Configuring Access Control Policy — Tailscale on DGX Spark Bundle">
+  <meta property="og:description" content="Define Tailscale ACL groups, tags, and SSH accept rules to grant secure, password-free access to DGX Spark machines.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-03.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 3: Configuring Access Control Policy — Tailscale on DGX Spark Bundle">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Configuring Access Control Policy",
+    "position": 3,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-03.html",
+    "isPartOf": {
+      "@type": "Book",
+      "name": "Tailscale on DGX Spark Bundle",
+      "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/"
+    },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Pragadeesh VS" }]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">TS</span>
+          <span class="sidebar-title">Tailscale on DGX Spark</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Pragadeesh VS · August 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+
+        <div class="nav-section-label">Part I — Fleet Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-problem" class="nav-item nav-sub">The Networking Problem</a>
+        <a href="chapter-01.html#ch1-how" class="nav-item nav-sub">How Tailscale Works</a>
+        <a href="chapter-01.html#ch1-arch" class="nav-item nav-sub">Architecture Overview</a>
+
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Enroll the Sparks</a>
+        <a href="chapter-02.html#ch2-install" class="nav-item nav-sub">Install Tailscale</a>
+        <a href="chapter-02.html#ch2-ssh" class="nav-item nav-sub">Enable SSH Mode</a>
+        <a href="chapter-02.html#ch2-tag" class="nav-item nav-sub">Apply the Tag</a>
+
+        <div class="nav-section-label">Part II — Access Control</div>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — ACL Policy</a>
+        <a href="chapter-03.html#ch3-invite" class="nav-item nav-sub">Invite Users</a>
+        <a href="chapter-03.html#ch3-groups" class="nav-item nav-sub">Groups &amp; Tags</a>
+        <a href="chapter-03.html#ch3-ssh-rule" class="nav-item nav-sub">SSH Rule</a>
+
+        <a href="chapter-04.html" class="nav-item">Ch 4 — Client &amp; SSH</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install on macOS</a>
+        <a href="chapter-04.html#ch4-login" class="nav-item nav-sub">Login &amp; Verify</a>
+        <a href="chapter-04.html#ch4-ssh" class="nav-item nav-sub">SSH into Sparks</a>
+
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">Tailscale on DGX Spark</a> /
+            <span>Ch 3: ACL Policy</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/Ebook_Tailscale_on_DGX_Spark_Bundle.pdf" class="btn-download" aria-label="Download PDF" download="Ebook_Tailscale_on_DGX_Spark_Bundle.pdf">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+
+          <section id="ch3-intro" class="chapter-section" aria-labelledby="ch3-title">
+            <div class="chapter-label">Chapter 3 · Part II — Access Control</div>
+            <h1 id="ch3-title">Configuring Access Control Policy</h1>
+            <p>Tailscale access control lives in a single JSON policy file managed through the admin console. This file is the source of truth for your entire tailnet: who can reach what, who can SSH where, and who owns which tags. Every node in the fleet checks this policy in real time — a change takes effect immediately without restarting daemons or rotating keys.</p>
+            <p>This chapter walks through three things: inviting engineers to the tailnet, writing the groups and tag ownership declarations, and defining the SSH accept rule that grants access.</p>
+          </section>
+
+          <section id="ch3-invite" class="chapter-section" aria-labelledby="ch3-invite-title">
+            <h2 id="ch3-invite-title">Step 1 — Invite Users to the Tailnet</h2>
+            <p>Each person who needs SSH access must first join the fleet tailnet. Tailscale uses existing identity providers — there is no new account to create.</p>
+
+            <h3>In the admin console</h3>
+            <ol>
+              <li>Go to <strong>login.tailscale.com/admin/users</strong></li>
+              <li>Click <strong>Invite users</strong></li>
+              <li>Enter the email address associated with the engineer's Google, GitHub, or Microsoft account</li>
+              <li>The engineer receives an invitation email and accepts it using their existing login</li>
+            </ol>
+
+            <div class="callout callout-note">
+              <div class="callout-title">Their login becomes their identity</div>
+              The email the engineer uses to accept the invitation (e.g. <code>alice@gmail.com</code> or <code>bob@company.com</code>) is what you reference in the ACL policy. Make sure you know which email they will use before writing the <code>groups</code> entry.
+            </div>
+
+            <p>Once an engineer accepts the invitation, their devices appear in the Machines list when they install and connect Tailscale. They do not have SSH access to the Sparks yet — that requires the ACL rule in Step 3.</p>
+
+            <h3>Onboarding vs. offboarding</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Action</th><th>How to do it</th><th>Takes effect</th></tr></thead>
+                <tbody>
+                  <tr><td>Add a new operator</td><td>Invite to tailnet + add login to <code>group:operators</code> in ACL</td><td>Immediately on ACL save</td></tr>
+                  <tr><td>Remove an operator</td><td>Remove from tailnet (Users page) or remove from <code>group:operators</code> group</td><td>Immediately — all machines enforce the change</td></tr>
+                  <tr><td>Temporarily suspend access</td><td>Remove their login from <code>group:operators</code> without removing from tailnet</td><td>Immediately — they can rejoin network but not SSH</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="ch3-groups" class="chapter-section" aria-labelledby="ch3-groups-title">
+            <h2 id="ch3-groups-title">Step 2 — Define Groups and Tag Ownership</h2>
+            <p>In the admin console, navigate to <strong>Access controls</strong>. The policy is a HuJSON file (JSON with comments allowed). The two sections to add are <code>groups</code> and <code>tagOwners</code>.</p>
+
+            <pre><code>"groups": {
+  // Each entry is a Tailscale login (the email used to accept the invite).
+  // Add every engineer who should be able to SSH into the Sparks.
+  "group:operators": ["alice@gmail.com", "bob@company.com"]
+},
+
+"tagOwners": {
+  // autogroup:admin means only tailnet admins can apply this tag.
+  // This prevents non-admins from self-tagging their devices as servers.
+  "tag:spark": ["autogroup:admin"]
+},</code></pre>
+
+            <h3>Understanding the fields</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Field</th><th>What it does</th></tr></thead>
+                <tbody>
+                  <tr><td><code>groups</code></td><td>Named lists of Tailscale logins. Used as <code>src</code> in access and SSH rules. Adding a login here immediately grants whatever the group is permitted to do.</td></tr>
+                  <tr><td><code>tagOwners</code></td><td>Declares who may apply a given tag to machines. <code>autogroup:admin</code> restricts it to tailnet administrators — no one can self-assign <code>tag:spark</code> to a random laptop.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="callout callout-warning">
+              <div class="callout-title">tagOwners must be declared before the tag is used</div>
+              If you try to apply <code>tag:spark</code> in the admin console before adding it to <code>tagOwners</code>, the console will reject it. Define <code>tagOwners</code> first, save the policy, then apply the tag to the machines (Chapter 2, Step 3).
+            </div>
+
+            <h3>Scaling the group over time</h3>
+            <p>The group is the only place you need to change when adding or removing operators. The SSH rule (Step 3) references the group, not individual logins — so the rule never needs to be edited when team membership changes.</p>
+
+            <pre><code>// Adding a third engineer: just add their login to the group.
+"group:operators": [
+  "alice@gmail.com",
+  "bob@company.com",
+  "carol@company.com"   // ← new
+]</code></pre>
+          </section>
+
+          <section id="ch3-ssh-rule" class="chapter-section" aria-labelledby="ch3-ssh-rule-title">
+            <h2 id="ch3-ssh-rule-title">Step 3 — Write the SSH Accept Rule</h2>
+            <p>The <code>ssh</code> section of the ACL policy defines who can SSH into what, as which Linux user. Add this block to the policy:</p>
+
+            <pre><code>"ssh": [
+  {
+    "action": "accept",
+    "src":    ["group:operators"],
+    "dst":    ["tag:spark"],
+    "users":  ["stoke"]
+  }
+]</code></pre>
+
+            <h3>Reading the rule</h3>
+            <blockquote>
+              <strong>Anyone in <code>group:operators</code></strong> may SSH into <strong>any machine tagged <code>tag:spark</code></strong>, and they land as the Linux user <strong><code>stoke</code></strong>.
+            </blockquote>
+
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Field</th><th>Value</th><th>Meaning</th></tr></thead>
+                <tbody>
+                  <tr><td><code>action</code></td><td><code>"accept"</code></td><td>Allow the connection (as opposed to <code>"check"</code> for re-authentication prompts)</td></tr>
+                  <tr><td><code>src</code></td><td><code>["group:operators"]</code></td><td>The Tailscale identities allowed to initiate SSH</td></tr>
+                  <tr><td><code>dst</code></td><td><code>["tag:spark"]</code></td><td>The destination machines — any device carrying this tag</td></tr>
+                  <tr><td><code>users</code></td><td><code>["stoke"]</code></td><td>The Linux system user to log in as on the destination</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Why tag:spark as dst is powerful</h3>
+            <p>The destination is a tag, not a list of machine names or IPs. This means:</p>
+            <ul>
+              <li>When you add a third DGX Spark and tag it <code>tag:spark</code>, it is instantly covered by this rule — no policy edit required.</li>
+              <li>When you decommission a Spark and remove the tag, it is instantly excluded.</li>
+              <li>You can scope access more narrowly later by giving specific machines their own tag (e.g. <code>tag:spark-dev</code>) and adding a separate rule for a different group.</li>
+            </ul>
+
+            <h3>Complete policy example</h3>
+            <pre><code>{
+  "groups": {
+    "group:operators": ["alice@gmail.com", "bob@company.com"]
+  },
+
+  "tagOwners": {
+    "tag:spark": ["autogroup:admin"]
+  },
+
+  "acls": [
+    // Default: allow operators to reach tagged Sparks on all ports
+    {
+      "action": "accept",
+      "src":    ["group:operators"],
+      "dst":    ["tag:spark:*"]
+    }
+  ],
+
+  "ssh": [
+    {
+      "action": "accept",
+      "src":    ["group:operators"],
+      "dst":    ["tag:spark"],
+      "users":  ["stoke"]
+    }
+  ]
+}</code></pre>
+
+            <div class="callout callout-note">
+              <div class="callout-title">The acls block is optional for SSH-only access</div>
+              If you only need SSH and do not want operators to reach other ports on the Sparks (e.g. Jupyter, Grafana), you can omit the <code>acls</code> block. Tailscale denies all non-SSH traffic by default unless explicitly allowed. Add <code>acls</code> entries later if you need port-level access beyond SSH.
+            </div>
+
+            <h3>Checkpoint</h3>
+            <p>After saving the policy:</p>
+            <ul>
+              <li>The <code>tag:spark</code> tag is available in the admin console machine editor</li>
+              <li>Every login in <code>group:operators</code> is authorized to SSH into tagged machines</li>
+              <li>Removing a login from the group immediately revokes SSH everywhere</li>
+            </ul>
+
+            <div class="chapter-nav">
+              <a href="chapter-02.html" class="chapter-nav-btn prev">
+                <div>
+                  <span class="nav-btn-label">← Previous</span>
+                  <span class="nav-btn-title">Ch 2: Enroll the Sparks</span>
+                </div>
+              </a>
+              <a href="chapter-04.html" class="chapter-nav-btn next">
+                <div>
+                  <span class="nav-btn-label">Next Chapter →</span>
+                  <span class="nav-btn-title">Ch 4: Client &amp; SSH</span>
+                </div>
+              </a>
+            </div>
+          </section>
+
+        </div><!-- .content-area -->
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          <strong>Tailscale on DGX Spark Bundle</strong> · Chapter 3 ·
+          <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp;
+          <a href="https://www.linkedin.com/in/pragadeeshvs/" rel="author noopener" target="_blank">Pragadeesh VS</a>
+        </p>
+        <p style="margin-top: 8px;">
+          <a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> ·
+          <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> ·
+          Licensed under CC BY 4.0
+        </p>
+      </footer>
+    </div><!-- .main -->
+  </div><!-- .layout -->
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); menuBtn.setAttribute('aria-expanded','true'); overlay.setAttribute('aria-hidden','false'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); overlay.setAttribute('aria-hidden','true'); }
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => { if ((l.getAttribute('href')||'').split('#')[0] === page) l.classList.add('active'); });
+    })();
+    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (!e.isIntersecting) return; const id = e.target.id; sidebar.querySelectorAll('.nav-item').forEach(l => { const href = l.getAttribute('href')||''; if (href.includes('#')) l.classList.toggle('active', href.split('#')[1] === id); }); }); }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+  </script>
+</body>
+</html>

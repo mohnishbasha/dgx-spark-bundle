@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPMCQ8HS3P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KPMCQ8HS3P');
+  </script>
+
+  <title>Ch 2: Enrolling the Spark Machines — Tailscale on DGX Spark Bundle</title>
+  <meta name="description" content="Chapter 2: Install Tailscale on each NVIDIA DGX Spark, enable SSH mode with tailscale up --ssh, authenticate to the tailnet, and apply the tag:spark ACL tag.">
+  <meta name="keywords" content="Tailscale install Linux, tailscale up --ssh, DGX Spark enrollment, tailnet login, tag:spark, Tailscale SSH, NVIDIA DGX Spark networking">
+  <meta name="author" content="Mohinish Shaikh, Pragadeesh VS">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-02.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ch 2: Enrolling the Spark Machines — Tailscale on DGX Spark Bundle">
+  <meta property="og:description" content="Install Tailscale on each DGX Spark, enable SSH mode, authenticate to the tailnet, and apply the tag:spark tag.">
+  <meta property="og:url" content="https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-02.html">
+  <meta property="og:site_name" content="Serverless Ventures">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ch 2: Enrolling the Spark Machines — Tailscale on DGX Spark Bundle">
+  <meta name="twitter:creator" content="@mohinishbasha">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": "Enrolling the Spark Machines",
+    "position": 2,
+    "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/chapter-02.html",
+    "isPartOf": {
+      "@type": "Book",
+      "name": "Tailscale on DGX Spark Bundle",
+      "url": "https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/"
+    },
+    "author": [{ "@type": "Person", "name": "Mohinish Shaikh" }, { "@type": "Person", "name": "Pragadeesh VS" }]
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar" aria-label="Book navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-badge">TS</span>
+          <span class="sidebar-title">Tailscale on DGX Spark</span>
+        </div>
+        <div class="sidebar-meta">Mohinish Shaikh · Pragadeesh VS · August 2026</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Front Matter</div>
+        <a href="index.html" class="nav-item">Cover &amp; Authors</a>
+        <a href="index.html#preface" class="nav-item">Preface</a>
+        <a href="index.html#toc" class="nav-item">Table of Contents</a>
+
+        <div class="nav-section-label">Part I — Fleet Setup</div>
+        <a href="chapter-01.html" class="nav-item">Ch 1 — Introduction</a>
+        <a href="chapter-01.html#ch1-problem" class="nav-item nav-sub">The Networking Problem</a>
+        <a href="chapter-01.html#ch1-how" class="nav-item nav-sub">How Tailscale Works</a>
+        <a href="chapter-01.html#ch1-arch" class="nav-item nav-sub">Architecture Overview</a>
+
+        <a href="chapter-02.html" class="nav-item">Ch 2 — Enroll the Sparks</a>
+        <a href="chapter-02.html#ch2-install" class="nav-item nav-sub">Install Tailscale</a>
+        <a href="chapter-02.html#ch2-ssh" class="nav-item nav-sub">Enable SSH Mode</a>
+        <a href="chapter-02.html#ch2-tag" class="nav-item nav-sub">Apply the Tag</a>
+
+        <div class="nav-section-label">Part II — Access Control</div>
+        <a href="chapter-03.html" class="nav-item">Ch 3 — ACL Policy</a>
+        <a href="chapter-03.html#ch3-invite" class="nav-item nav-sub">Invite Users</a>
+        <a href="chapter-03.html#ch3-groups" class="nav-item nav-sub">Groups &amp; Tags</a>
+        <a href="chapter-03.html#ch3-ssh-rule" class="nav-item nav-sub">SSH Rule</a>
+
+        <a href="chapter-04.html" class="nav-item">Ch 4 — Client &amp; SSH</a>
+        <a href="chapter-04.html#ch4-install" class="nav-item nav-sub">Install on macOS</a>
+        <a href="chapter-04.html#ch4-login" class="nav-item nav-sub">Login &amp; Verify</a>
+        <a href="chapter-04.html#ch4-ssh" class="nav-item nav-sub">SSH into Sparks</a>
+
+        <div class="nav-section-label">Back Matter</div>
+        <a href="cheatsheet.html" class="nav-item">Command Cheatsheet</a>
+        <a href="troubleshooting.html" class="nav-item">Troubleshooting</a>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="https://www.serverlessvc.com" target="_blank" rel="noopener">Serverless Ventures</a> /
+            <a href="../../">DGX Spark Bundle</a> /
+            <a href="index.html">Tailscale on DGX Spark</a> /
+            <span>Ch 2: Enroll the Sparks</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <a href="dist/Ebook_Tailscale_on_DGX_Spark_Bundle.pdf" class="btn-download" aria-label="Download PDF" download="Ebook_Tailscale_on_DGX_Spark_Bundle.pdf">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <main id="main-content">
+        <div class="content-area">
+
+          <section id="ch2-intro" class="chapter-section" aria-labelledby="ch2-title">
+            <div class="chapter-label">Chapter 2 · Part I — Fleet Setup</div>
+            <h1 id="ch2-title">Enrolling the Spark Machines</h1>
+            <p>This chapter covers everything that happens on the Spark machines themselves: installing Tailscale, enabling SSH mode, and authenticating each node to the fleet tailnet. You will repeat these steps once per Spark. For a two-node bundle, run them on both machines before moving to Chapter 3.</p>
+
+            <div class="callout callout-note">
+              <div class="callout-title">Prerequisites</div>
+              <ul>
+                <li>SSH or physical access to each Spark running Ubuntu (ARM64)</li>
+                <li>A Tailscale account on <strong>the fleet tailnet</strong> (the admin account, not a personal one)</li>
+                <li>Internet access from the Spark — the install script downloads from tailscale.com</li>
+              </ul>
+            </div>
+          </section>
+
+          <section id="ch2-install" class="chapter-section" aria-labelledby="ch2-install-title">
+            <h2 id="ch2-install-title">Step 1 — Install Tailscale</h2>
+            <p>Tailscale provides a one-line installer that handles package repository setup, GPG key import, and daemon startup. Run this on each Spark:</p>
+
+            <pre><code>curl -fsSL https://tailscale.com/install.sh | sh</code></pre>
+
+            <p>The script auto-detects the OS and architecture. On DGX Spark (Ubuntu ARM64) it installs from the official Tailscale apt repository and starts <code>tailscaled</code> as a systemd service.</p>
+
+            <h3>What the installer does</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>Adds <code>pkgs.tailscale.com</code> to <code>/etc/apt/sources.list.d/</code></td></tr>
+                  <tr><td>2</td><td>Imports the Tailscale GPG signing key</td></tr>
+                  <tr><td>3</td><td>Runs <code>apt-get install tailscale</code></td></tr>
+                  <tr><td>4</td><td>Enables and starts <code>tailscaled.service</code> via systemd</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>Verify the daemon is running:</p>
+            <pre><code>sudo systemctl status tailscaled</code></pre>
+
+            <p>Expected output includes <code>Active: active (running)</code>.</p>
+          </section>
+
+          <section id="ch2-ssh" class="chapter-section" aria-labelledby="ch2-ssh-title">
+            <h2 id="ch2-ssh-title">Step 2 — Bring Up Tailscale with SSH Mode and Tag</h2>
+            <p>The <code>tailscale up</code> command connects the daemon to the tailnet. Run it with two flags: <code>--ssh</code> enables Tailscale SSH (replacing key-based auth with tailnet identity), and <code>--advertise-tags=tag:spark</code> self-applies the ACL tag at enrollment time — no manual console step required.</p>
+
+            <pre><code>sudo tailscale up --ssh --advertise-tags=tag:spark</code></pre>
+
+            <p>The command prints a login URL:</p>
+
+            <pre><code>To authenticate, visit:
+
+        https://login.tailscale.com/a/xxxxxxxxxxxxxxxx</code></pre>
+
+            <div class="callout callout-warning">
+              <div class="callout-title">Open the URL in the fleet account browser</div>
+              This URL must be opened in a browser that is already signed into the <strong>fleet tailnet account</strong> — not a personal Tailscale account. If you sign into the wrong account, the machine joins the wrong tailnet and you will need to reauthenticate.
+            </div>
+
+            <p>After you open the URL and approve the device in the browser, the terminal shows:</p>
+            <pre><code>Success.</code></pre>
+
+            <p>The Spark is now on the tailnet with SSH enabled and the <code>tag:spark</code> tag applied. Verify with:</p>
+            <pre><code>tailscale status</code></pre>
+
+            <p>You should see the machine listed with its <code>100.x.x.x</code> Tailscale IP. In the admin console, the machine row will show <code>tagged-devices</code> (not your personal account) as the owner — confirming the tag took effect.</p>
+
+            <h3>What each flag does</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
+                <tbody>
+                  <tr><td><code>--ssh</code></td><td>Tailscale intercepts SSH on the tailnet interface; ACL policy becomes the sole auth check — no <code>authorized_keys</code> needed</td></tr>
+                  <tr><td><code>--advertise-tags=tag:spark</code></td><td>Self-applies <code>tag:spark</code> at enrollment; the SSH rule in Chapter 3 targets this tag — no admin console click required</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="callout callout-warning">
+              <div class="callout-title">tagOwners must be defined first</div>
+              The <code>tag:spark</code> tag must be declared in the ACL policy's <code>tagOwners</code> section before <code>--advertise-tags</code> will accept it. If you see an error about an undefined tag, set up the ACL in Chapter 3 first, then re-run this command. Running <code>sudo tailscale up --ssh --advertise-tags=tag:spark</code> on an already-connected machine simply re-applies the flags — you do not need to re-authenticate.
+            </div>
+          </section>
+
+          <section id="ch2-tag" class="chapter-section" aria-labelledby="ch2-tag-title">
+            <h2 id="ch2-tag-title">Step 3 — Verify the Tag in the Admin Console</h2>
+            <p>The <code>--advertise-tags</code> flag handles tagging automatically, but it is worth confirming in the admin console — especially if this is your first enrollment.</p>
+
+            <h3>In the admin console</h3>
+            <ol>
+              <li>Go to <strong>login.tailscale.com/admin/machines</strong></li>
+              <li>Find your Spark in the machine list (look for the hostname or Tailscale IP)</li>
+              <li>The <strong>Owner</strong> column should show <strong>tagged-devices</strong> instead of your email — this confirms the tag is active</li>
+              <li>Click the machine row → <strong>Machine details</strong> to see the full tag list</li>
+            </ol>
+
+            <p>If the tag is missing (Owner still shows your email), click <strong>⋯ → Edit ACL tags</strong>, type <code>tag:spark</code> and confirm. Then verify <code>tagOwners</code> is defined in the ACL policy (Chapter 3).</p>
+
+            <h3>What tagging does to node key expiry</h3>
+            <p>An important operational side effect: <strong>tagged devices never require re-authentication</strong>. Untagged personal devices must re-login every ~180 days (the Tailscale key expiry default). A tagged server-class device — like a DGX Spark — has its node keys refreshed automatically and will never silently drop off the tailnet because someone forgot to re-login.</p>
+
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Device type</th><th>Key expiry</th><th>Re-auth required</th></tr></thead>
+                <tbody>
+                  <tr><td>Untagged (personal device)</td><td>~180 days</td><td>Yes — human login needed</td></tr>
+                  <tr><td>Tagged (server, e.g. <code>tag:spark</code>)</td><td>Never</td><td>No — automatic refresh</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>This is why tagging is not just an access-control choice — it is the right operational posture for any machine that must stay on the tailnet permanently.</p>
+
+            <h3>Checkpoint</h3>
+            <p>At the end of this chapter both Spark machines should:</p>
+            <ul>
+              <li>Have <code>tailscaled</code> running as a systemd service</li>
+              <li>Be connected to the fleet tailnet with a <code>100.x.x.x</code> IP</li>
+              <li>Have Tailscale SSH enabled (<code>--ssh</code> flag)</li>
+              <li>Carry the <code>tag:spark</code> ACL tag (shown as <code>tagged-devices</code> in the admin console)</li>
+            </ul>
+
+            <div class="chapter-nav">
+              <a href="chapter-01.html" class="chapter-nav-btn prev">
+                <div>
+                  <span class="nav-btn-label">← Previous</span>
+                  <span class="nav-btn-title">Ch 1: Introduction</span>
+                </div>
+              </a>
+              <a href="chapter-03.html" class="chapter-nav-btn next">
+                <div>
+                  <span class="nav-btn-label">Next Chapter →</span>
+                  <span class="nav-btn-title">Ch 3: ACL Policy</span>
+                </div>
+              </a>
+            </div>
+          </section>
+
+        </div><!-- .content-area -->
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          <strong>Tailscale on DGX Spark Bundle</strong> · Chapter 2 ·
+          <a href="https://www.linkedin.com/in/mohinishbasha/" rel="author noopener" target="_blank">Mohinish Shaikh</a> &amp;
+          <a href="https://www.linkedin.com/in/pragadeeshvs/" rel="author noopener" target="_blank">Pragadeesh VS</a>
+        </p>
+        <p style="margin-top: 8px;">
+          <a href="https://github.com/mohinishbasha/dgx-spark-bundle" rel="noopener" target="_blank">View Source on GitHub</a> ·
+          <a href="https://www.serverlessvc.com" rel="noopener" target="_blank">Serverless Ventures LLC</a> ·
+          Licensed under CC BY 4.0
+        </p>
+      </footer>
+    </div><!-- .main -->
+  </div><!-- .layout -->
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); menuBtn.setAttribute('aria-expanded','true'); overlay.setAttribute('aria-hidden','false'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); overlay.setAttribute('aria-hidden','true'); }
+    menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.nav-item').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+    (function() {
+      const page = window.location.pathname.split('/').pop() || 'index.html';
+      sidebar.querySelectorAll('.nav-item').forEach(l => { if ((l.getAttribute('href')||'').split('#')[0] === page) l.classList.add('active'); });
+    })();
+    const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (!e.isIntersecting) return; const id = e.target.id; sidebar.querySelectorAll('.nav-item').forEach(l => { const href = l.getAttribute('href')||''; if (href.includes('#')) l.classList.toggle('active', href.split('#')[1] === id); }); }); }, { rootMargin: '-20% 0px -60% 0px' });
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+    document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', function(e) { const t = document.querySelector(this.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+  </script>
+</body>
+</html>
