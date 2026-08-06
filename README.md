@@ -8,7 +8,7 @@ Open technical books on AI infrastructure, GPU computing, and distributed system
 
 ## Books
 
-### From Box to Cluster: Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle
+### Book 1 — From Box to Cluster: Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle
 
 Step-by-step guide to configuring two NVIDIA DGX Spark units into a production AI inference cluster running vLLM, KubeRay, k3s, and AIBrix.
 
@@ -18,19 +18,35 @@ Step-by-step guide to configuring two NVIDIA DGX Spark units into a production A
 
 ---
 
+### Book 2 — Tailscale on DGX Spark Bundle: Zero-Config Secure Networking for Your AI Fleet
+
+Practical runbook for enrolling DGX Spark nodes in a Tailscale mesh network, configuring ACL policy, and establishing password-free SSH access from macOS clients — in under 30 minutes.
+
+- **Stack:** Tailscale · WireGuard · MagicDNS · Tailscale SSH · ACL policy
+- **Hardware:** 2× DGX Spark nodes · macOS client
+- **Chapters:** 4 (Fleet Setup · Machine Enrollment · ACL Policy · Client SSH Access)
+- **Read:** [books/tailscale-on-dgx-sparks-bundle/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-on-dgx-sparks-bundle/)
+
+---
+
 ## Repository Structure
 
 ```
 dgx-spark-bundle/
-├── index.html                        # Books landing page
-├── robots.txt                        # Crawler policy
-├── llms.txt                          # AI/LLM crawler index
+├── index.html                              # Books landing page
+├── robots.txt                              # Crawler policy
+├── llms.txt                                # AI/LLM crawler index
 ├── books/
-│   └── from-box-to-cluster/
-│       ├── index.html                # Full ebook (single-page)
-│       ├── styles.css
-│       └── dist/                     # Generated artifacts
-└── .github/workflows/pages.yml       # GitHub Pages deployment
+│   ├── from-box-to-cluster/
+│   │   ├── index.html                      # Full ebook (single-page)
+│   │   ├── styles.css
+│   │   ├── README.md
+│   │   └── dist/                           # Generated artifacts
+│   └── tailscale-on-dgx-sparks-bundle/
+│       ├── index.html                      # Full ebook (single-page)
+│       ├── README.md
+│       └── dist/                           # Generated artifacts
+└── .github/workflows/pages.yml             # GitHub Pages deployment
 ```
 
 ## Contributing
