@@ -11,7 +11,7 @@ Open technical books on AI infrastructure, GPU computing, and distributed system
 | # | Title | Description | Stack | Read |
 |---|-------|-------------|-------|------|
 | 1 | **From Box to Cluster** — Building a Personal AI Supercomputer with NVIDIA DGX Spark Bundle | Step-by-step guide to configuring two DGX Spark units into a production AI inference cluster | DGX OS · k3s · GPU Operator · KubeRay · vLLM · AIBrix · Prometheus/Grafana | [books/from-box-to-cluster/](https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/) |
-| 2 | **Tailscale for AI Fleets** — Secure Mesh Networking for the DGX Spark Bundle | Practical runbook for enrolling DGX Spark nodes in a Tailscale WireGuard mesh with tag-based ACL and password-free SSH | Tailscale · WireGuard · MagicDNS · Tailscale SSH · ACL policy | [books/tailscale-for-ai-fleets/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/) |
+| 2 | **Tailscale for AI Fleets** — Secure Mesh Networking for the DGX Spark Bundle | Practical runbook for enrolling 4 DGX Spark nodes (2 bundles) in a Tailscale WireGuard mesh with tag-based ACL and password-free SSH | Tailscale · WireGuard · MagicDNS · Tailscale SSH · ACL policy | [books/tailscale-for-ai-fleets/](https://mohnishbasha.github.io/dgx-spark-bundle/books/tailscale-for-ai-fleets/) |
 
 ---
 

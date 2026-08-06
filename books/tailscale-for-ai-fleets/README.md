@@ -11,14 +11,17 @@ Practical runbook for enrolling NVIDIA DGX Spark nodes in a Tailscale WireGuard 
 ## What You'll Build
 
 ```
-MacBook  ──── Tailnet ────  spark-5f59  (DGX Spark 1)
-                       └──  spark-6126  (DGX Spark 2)
+                        ┌── spark-bundle1-1  (100.109.xx.xx)
+                        ├── spark-bundle1-2  (100.104.xx.xx)
+MacBook ──── Tailnet ───┤
+                        ├── spark-bundle2-1  (100.70.xx.xx)
+                        └── spark-bundle2-2  (100.67.xx.xx)
 
 tag:spark → SSH accept rule → group:operators
 ```
 
-- 2 Spark nodes enrolled with `tag:spark`
-- 1 ACL policy granting SSH access to operators
+- 4 Spark nodes (2 bundles) enrolled with `tag:spark`
+- 1 ACL policy granting SSH access to operators across all nodes
 - MagicDNS SSH — no passwords, no key distribution
 
 ## Stack
