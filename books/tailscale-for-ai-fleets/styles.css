@@ -248,6 +248,27 @@ body {
 
 .btn-download:hover { background: var(--color-accent-hover); text-decoration: none; }
 
+/* ── Social share icons ── */
+.share-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.share-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--transition), background var(--transition);
+}
+
+.share-icon:hover { color: var(--color-text); background: var(--color-border); }
+
 /* ── Animated gradient orbs (serverlessvc.com style) ── */
 .gradient-bg {
   position: relative;
