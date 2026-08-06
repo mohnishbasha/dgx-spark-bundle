@@ -1,5 +1,5 @@
 ---
-title: "Tailscale on DGX Spark Bundle"
+title: "Tailscale for AI Fleets"
 subtitle: "Zero-Config Secure Networking for Your AI Fleet"
 author: "Mohinish Shaikh"
 date: "August 2026"
@@ -8,7 +8,7 @@ edition: "First Edition"
 rights: "Licensed under CC BY 4.0"
 ---
 
-# Tailscale on DGX Spark Bundle
+# Tailscale for AI Fleets
 
 **Zero-Config Secure Networking for Your AI Fleet**
 

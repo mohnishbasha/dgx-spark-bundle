@@ -32,7 +32,7 @@ PRINT_HTML_HEAD = """\
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tailscale on DGX Spark Bundle: Zero-Config Secure Networking for Your AI Fleet</title>
+  <title>Tailscale for AI Fleets: Secure Mesh Networking for the DGX Spark Bundle</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">

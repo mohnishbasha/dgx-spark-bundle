@@ -16,7 +16,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="$SCRIPT_DIR/dist"
-TITLE="Tailscale on DGX Spark Bundle"
+TITLE="Tailscale for AI Fleets"
 AUTHORS="Mohinish Shaikh"
 DATE="August 2026"
 
