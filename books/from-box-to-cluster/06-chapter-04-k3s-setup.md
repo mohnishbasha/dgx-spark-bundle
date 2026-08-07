@@ -149,7 +149,30 @@ helm version
 
 ---
 
-## 4.9 NVIDIA GPU Operator
+## 4.9 Shell Completions
+
+Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by `command -v`, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like `gh`, `uv`, `poetry`, or `terraform` arrive later.
+
+```bash
+{
+  echo 'command -v kubectl >/dev/null && source <(kubectl completion bash)'
+  echo 'command -v helm    >/dev/null && source <(helm completion bash)'
+  echo 'command -v gh      >/dev/null && source <(gh completion -s bash)'
+  echo 'command -v uv      >/dev/null && eval "$(uv generate-shell-completion bash)"'
+  echo 'command -v poetry  >/dev/null && source <(poetry completions bash)'
+} >> ~/.bashrc
+
+# terraform ships its own installer that appends to ~/.bashrc
+command -v terraform >/dev/null && terraform -install-autocomplete
+
+source ~/.bashrc
+```
+
+Verify with `kubectl <Tab><Tab>` and `helm <Tab><Tab>`. Repeat on Spark 2 if you plan to run `kubectl` from there as well.
+
+---
+
+## 4.10 NVIDIA GPU Operator
 
 The GPU Operator is an NVIDIA-provided Kubernetes operator that automatically deploys and manages all GPU-related components on each node:
 
@@ -223,7 +246,7 @@ kubectl get nodes -o json | grep "rdma.available"
 
 ---
 
-## 4.10 Namespace Structure
+## 4.11 Namespace Structure
 
 Create the namespaces used by the infrastructure layers:
 
@@ -251,7 +274,7 @@ Project workload namespaces are created when those workloads are deployed and ar
 
 ---
 
-## 4.11 Uninstalling k3s (Recovery Reference)
+## 4.12 Uninstalling k3s (Recovery Reference)
 
 If you need to reinstall from scratch:
 
@@ -274,7 +297,7 @@ ssh moonlit@192.168.86.26 "/usr/local/bin/k3s-agent-uninstall.sh"
 
 ---
 
-## 4.12 Architecture Notes
+## 4.13 Architecture Notes
 
 **CNI: Flannel**
 k3s uses Flannel as the default CNI. Flannel provides pod-to-pod networking across nodes using VXLAN encapsulation. It does not support RDMA/RoCE — meaning NCCL (used by vLLM for tensor parallelism) falls back to TCP-based communication for cross-node GPU traffic.
@@ -295,6 +318,7 @@ At the end of this chapter you have:
 - [x] Spark 2 joined as worker node
 - [x] `kubectl get nodes` shows both nodes `Ready`
 - [x] Helm installed
+- [x] Shell completions enabled in `~/.bashrc`
 - [x] NVIDIA GPU Operator installed and running
 - [x] Both GB10 GPUs visible as `nvidia.com/gpu` resources in Kubernetes
 - [x] `core-services` and `monitoring` namespaces created

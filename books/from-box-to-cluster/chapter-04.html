@@ -88,6 +88,7 @@
         <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
         <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
         <a href="#ch4-install" class="nav-item nav-sub">Install k3s</a>
+        <a href="#ch4-completions" class="nav-item nav-sub">Shell Completions</a>
         <a href="#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
         <div class="nav-section-label">Part II — Model Serving</div>
         <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
@@ -169,6 +170,24 @@ echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.bashrc</code></pre>
               <h2>Install Helm</h2>
               <pre><code>curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 helm version</code></pre>
+            </div>
+
+            <div id="ch4-completions">
+              <h2>Shell Completions</h2>
+              <p>Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by <code>command -v</code>, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like <code>gh</code>, <code>uv</code>, <code>poetry</code>, or <code>terraform</code> arrive later.</p>
+              <pre><code>{
+  echo 'command -v kubectl &gt;/dev/null &amp;&amp; source &lt;(kubectl completion bash)'
+  echo 'command -v helm    &gt;/dev/null &amp;&amp; source &lt;(helm completion bash)'
+  echo 'command -v gh      &gt;/dev/null &amp;&amp; source &lt;(gh completion -s bash)'
+  echo 'command -v uv      &gt;/dev/null &amp;&amp; eval "$(uv generate-shell-completion bash)"'
+  echo 'command -v poetry  &gt;/dev/null &amp;&amp; source &lt;(poetry completions bash)'
+} &gt;&gt; ~/.bashrc
+
+# terraform ships its own installer that appends to ~/.bashrc
+command -v terraform &gt;/dev/null &amp;&amp; terraform -install-autocomplete
+
+source ~/.bashrc</code></pre>
+              <p>Verify with <code>kubectl <kbd>Tab</kbd><kbd>Tab</kbd></code> and <code>helm <kbd>Tab</kbd><kbd>Tab</kbd></code>. Repeat on Spark 2 if you plan to run <code>kubectl</code> from there as well.</p>
             </div>
 
             <div id="ch4-gpu">

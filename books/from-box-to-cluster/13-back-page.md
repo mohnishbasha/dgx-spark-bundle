@@ -83,7 +83,7 @@ sudo netfilter-persistent save
 | AIBrix returns 503 for a model | Wrong `podSelector` labels in ModelAdapter | Per-model pods use `app: <name>`, not `ray.io/node-type: head` — see Chapter 7.7 |
 | NCCL hangs or very slow during tensor parallel | Wrong network interface selected | Set `NCCL_SOCKET_IFNAME=eth0` and `NCCL_DEBUG=INFO` — see Chapter 5.7 |
 | `nmcli` sets IP on wrong interface | Multiple active connections (WiFi + Ethernet) | Specify connection name explicitly — see Chapter 2.4 |
-| k3s uninstall breaks SSH on Spark 2 | k3s leaves iptables rules blocking port 22 | Flush iptables; see Chapter 4.11 recovery procedure |
+| k3s uninstall breaks SSH on Spark 2 | k3s leaves iptables rules blocking port 22 | Flush iptables; see Chapter 4.12 recovery procedure |
 | `kubectl get nodes` shows NotReady after reboot | k3s service didn't start automatically | `sudo systemctl start k3s` (Spark 1) or `sudo systemctl start k3s-agent` (Spark 2) |
 | GPU Operator stuck in Init for >15 min | NGC image pull timing out | Verify internet access; pre-pull image with `docker pull nvcr.io/nvidia/...` |
 | Disk full during model download | NVMe SSD full | Check `df -h /`; clear unused container images with `docker system prune` |
