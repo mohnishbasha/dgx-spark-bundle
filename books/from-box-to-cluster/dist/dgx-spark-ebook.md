@@ -1134,21 +1134,21 @@ helm version
 
 ---
 
-## 4.9 Shell Completions
+## 4.9 Shell Completions & kubectl Aliases
 
-Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by `command -v`, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like `gh`, `uv`, or `poetry` arrive later.
+Enable tab-completion and a small set of `kubectl` / `helm` aliases you will lean on for the rest of the book. Completions are guarded by `command -v`, so lines for tools you haven't installed yet (`gh`, `uv`, `poetry`) are no-ops until those tools land on PATH.
 
 ### Option A — One-liner (recommended)
 
-Download and run the idempotent installer script on both Sparks:
+Download and run the idempotent installer script on both Sparks — it installs both completions and aliases:
 
 ```bash
 curl -fsSL https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/scripts/setup-completions.sh | bash
 ```
 
-Safe to re-run — the script uses a marker comment to skip an already-installed block. Source: [`scripts/setup-completions.sh`](scripts/setup-completions.sh).
+Safe to re-run — the script uses two marker blocks (completions, aliases) and skips whichever is already installed. Source: [`scripts/setup-completions.sh`](scripts/setup-completions.sh).
 
-### Option B — Manual
+### Option B — Manual: completions
 
 ```bash
 {
@@ -1162,7 +1162,48 @@ Safe to re-run — the script uses a marker comment to skip an already-installed
 source ~/.bashrc
 ```
 
-Verify with `kubectl <Tab><Tab>` and `helm <Tab><Tab>`. Repeat on Spark 2 if you plan to run `kubectl` from there as well.
+### Option C — Manual: kubectl / helm aliases
+
+The `k` alias is worth its weight in gold — you will type it thousands of times. The `complete -F __start_kubectl k` line rewires kubectl's completion so `k <Tab>` works exactly like `kubectl <Tab>`.
+
+```bash
+{
+  echo "alias k='kubectl'"
+  echo "alias kgp='kubectl get pods'"
+  echo "alias kgs='kubectl get svc'"
+  echo "alias kgn='kubectl get nodes'"
+  echo "alias kga='kubectl get all'"
+  echo "alias kd='kubectl describe'"
+  echo "alias kl='kubectl logs'"
+  echo "alias kx='kubectl exec -it'"
+  echo "alias kaf='kubectl apply -f'"
+  echo "alias kdel='kubectl delete'"
+  echo "alias kns='kubectl config set-context --current --namespace'"
+  echo "alias h='helm'"
+  echo 'command -v kubectl >/dev/null && complete -o default -F __start_kubectl k'
+  echo 'command -v helm    >/dev/null && complete -o default -F __start_helm    h'
+} >> ~/.bashrc
+
+source ~/.bashrc
+```
+
+**Cheat sheet:**
+
+| Alias  | Expands to                                              | Use                                              |
+|--------|---------------------------------------------------------|--------------------------------------------------|
+| `k`    | `kubectl`                                               | Everything.                                      |
+| `kgp`  | `kubectl get pods`                                      | `kgp -A` for all namespaces.                     |
+| `kgn`  | `kubectl get nodes`                                     | Check `spark-720e` / `spark-7229` readiness.     |
+| `kga`  | `kubectl get all`                                       | Everything in the current namespace.             |
+| `kd`   | `kubectl describe`                                      | `kd pod <name>`.                                 |
+| `kl`   | `kubectl logs`                                          | `kl -f <pod>` to tail.                           |
+| `kx`   | `kubectl exec -it`                                      | `kx <pod> -- bash`.                              |
+| `kaf`  | `kubectl apply -f`                                      | Apply a manifest.                                |
+| `kdel` | `kubectl delete`                                        | Delete a resource.                               |
+| `kns`  | `kubectl config set-context --current --namespace`      | `kns core-services` — persists across sessions.  |
+| `h`    | `helm`                                                  | Same pattern as `k`.                             |
+
+Verify with `k <Tab><Tab>`, `kgp`, and `kns kube-system`. Repeat on Spark 2 if you plan to run `kubectl` from there as well.
 
 ---
 
@@ -1312,7 +1353,7 @@ At the end of this chapter you have:
 - [x] Spark 2 joined as worker node
 - [x] `kubectl get nodes` shows both nodes `Ready`
 - [x] Helm installed
-- [x] Shell completions enabled in `~/.bashrc`
+- [x] Shell completions and kubectl aliases enabled in `~/.bashrc`
 - [x] NVIDIA GPU Operator installed and running
 - [x] Both GB10 GPUs visible as `nvidia.com/gpu` resources in Kubernetes
 - [x] `core-services` and `monitoring` namespaces created

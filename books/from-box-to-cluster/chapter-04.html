@@ -88,7 +88,7 @@
         <a href="chapter-03.html" class="nav-item">Ch 3 — CUDA Updates</a>
         <a href="chapter-04.html" class="nav-item">Ch 4 — k3s Kubernetes</a>
         <a href="#ch4-install" class="nav-item nav-sub">Install k3s</a>
-        <a href="#ch4-completions" class="nav-item nav-sub">Shell Completions</a>
+        <a href="#ch4-completions" class="nav-item nav-sub">Completions &amp; Aliases</a>
         <a href="#ch4-gpu" class="nav-item nav-sub">GPU Operator</a>
         <div class="nav-section-label">Part II — Model Serving</div>
         <a href="chapter-05.html" class="nav-item">Ch 5 — KubeRay</a>
@@ -173,15 +173,15 @@ helm version</code></pre>
             </div>
 
             <div id="ch4-completions">
-              <h2>Shell Completions</h2>
-              <p>Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by <code>command -v</code>, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like <code>gh</code>, <code>uv</code>, or <code>poetry</code> arrive later.</p>
+              <h2>Shell Completions &amp; kubectl Aliases</h2>
+              <p>Enable tab-completion and a small set of <code>kubectl</code>/<code>helm</code> aliases you will lean on for the rest of the book. Completions are guarded by <code>command -v</code>, so lines for tools you haven't installed yet (<code>gh</code>, <code>uv</code>, <code>poetry</code>) are no-ops until those tools land on PATH.</p>
 
               <h3>Option A — One-liner (recommended)</h3>
-              <p>Download and run the idempotent installer script (<a href="scripts/setup-completions.sh" download>setup-completions.sh</a>) on both Sparks:</p>
+              <p>Download and run the idempotent installer script (<a href="scripts/setup-completions.sh" download>setup-completions.sh</a>) on both Sparks — it installs both completions and aliases:</p>
               <pre><code>curl -fsSL https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/scripts/setup-completions.sh | bash</code></pre>
-              <p>Safe to re-run — the script uses a marker comment to skip an already-installed block.</p>
+              <p>Safe to re-run — the script uses two marker blocks (completions, aliases) and skips whichever is already installed.</p>
 
-              <h3>Option B — Manual</h3>
+              <h3>Option B — Manual: completions</h3>
               <pre><code>{
   echo 'command -v kubectl &gt;/dev/null &amp;&amp; source &lt;(kubectl completion bash)'
   echo 'command -v helm    &gt;/dev/null &amp;&amp; source &lt;(helm completion bash)'
@@ -191,7 +191,47 @@ helm version</code></pre>
 } &gt;&gt; ~/.bashrc
 
 source ~/.bashrc</code></pre>
-              <p>Verify with <code>kubectl <kbd>Tab</kbd><kbd>Tab</kbd></code> and <code>helm <kbd>Tab</kbd><kbd>Tab</kbd></code>. Repeat on Spark 2 if you plan to run <code>kubectl</code> from there as well.</p>
+
+              <h3>Option C — Manual: kubectl / helm aliases</h3>
+              <p>The <code>k</code> alias is worth its weight in gold — you will type it thousands of times. The <code>complete -F __start_kubectl k</code> line rewires kubectl's completion so <code>k <kbd>Tab</kbd></code> works exactly like <code>kubectl <kbd>Tab</kbd></code>.</p>
+              <pre><code>{
+  echo "alias k='kubectl'"
+  echo "alias kgp='kubectl get pods'"
+  echo "alias kgs='kubectl get svc'"
+  echo "alias kgn='kubectl get nodes'"
+  echo "alias kga='kubectl get all'"
+  echo "alias kd='kubectl describe'"
+  echo "alias kl='kubectl logs'"
+  echo "alias kx='kubectl exec -it'"
+  echo "alias kaf='kubectl apply -f'"
+  echo "alias kdel='kubectl delete'"
+  echo "alias kns='kubectl config set-context --current --namespace'"
+  echo "alias h='helm'"
+  echo 'command -v kubectl &gt;/dev/null &amp;&amp; complete -o default -F __start_kubectl k'
+  echo 'command -v helm    &gt;/dev/null &amp;&amp; complete -o default -F __start_helm    h'
+} &gt;&gt; ~/.bashrc
+
+source ~/.bashrc</code></pre>
+
+              <p><strong>Cheat sheet:</strong></p>
+              <table>
+                <thead><tr><th>Alias</th><th>Expands to</th><th>Use</th></tr></thead>
+                <tbody>
+                  <tr><td><code>k</code></td><td><code>kubectl</code></td><td>Everything.</td></tr>
+                  <tr><td><code>kgp</code></td><td><code>kubectl get pods</code></td><td><code>kgp -A</code> for all namespaces.</td></tr>
+                  <tr><td><code>kgn</code></td><td><code>kubectl get nodes</code></td><td>Check <code>spark-720e</code> / <code>spark-7229</code> readiness.</td></tr>
+                  <tr><td><code>kga</code></td><td><code>kubectl get all</code></td><td>Everything in the current namespace.</td></tr>
+                  <tr><td><code>kd</code></td><td><code>kubectl describe</code></td><td><code>kd pod &lt;name&gt;</code>.</td></tr>
+                  <tr><td><code>kl</code></td><td><code>kubectl logs</code></td><td><code>kl -f &lt;pod&gt;</code> to tail.</td></tr>
+                  <tr><td><code>kx</code></td><td><code>kubectl exec -it</code></td><td><code>kx &lt;pod&gt; -- bash</code>.</td></tr>
+                  <tr><td><code>kaf</code></td><td><code>kubectl apply -f</code></td><td>Apply a manifest.</td></tr>
+                  <tr><td><code>kdel</code></td><td><code>kubectl delete</code></td><td>Delete a resource.</td></tr>
+                  <tr><td><code>kns</code></td><td><code>kubectl config set-context --current --namespace</code></td><td><code>kns core-services</code> — persists across sessions.</td></tr>
+                  <tr><td><code>h</code></td><td><code>helm</code></td><td>Same pattern as <code>k</code>.</td></tr>
+                </tbody>
+              </table>
+
+              <p>Verify with <code>k <kbd>Tab</kbd><kbd>Tab</kbd></code>, <code>kgp</code>, and <code>kns kube-system</code>. Repeat on Spark 2 if you plan to run <code>kubectl</code> from there as well.</p>
             </div>
 
             <div id="ch4-gpu">
