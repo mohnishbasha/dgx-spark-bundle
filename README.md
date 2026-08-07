@@ -4,7 +4,6 @@ Open technical books on AI infrastructure, GPU computing, and distributed system
 
 **Site:** https://mohnishbasha.github.io/dgx-spark-bundle/
 
-
 ---
 
 ## Books
