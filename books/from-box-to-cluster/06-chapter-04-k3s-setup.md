@@ -153,6 +153,18 @@ helm version
 
 Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by `command -v`, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like `gh`, `uv`, `poetry`, or `terraform` arrive later.
 
+### Option A — One-liner (recommended)
+
+Download and run the idempotent installer script on both Sparks:
+
+```bash
+curl -fsSL https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/scripts/setup-completions.sh | bash
+```
+
+Safe to re-run — the script uses a marker comment to skip an already-installed block. Source: [`scripts/setup-completions.sh`](scripts/setup-completions.sh).
+
+### Option B — Manual
+
 ```bash
 {
   echo 'command -v kubectl >/dev/null && source <(kubectl completion bash)'

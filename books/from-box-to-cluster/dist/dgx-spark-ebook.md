@@ -1134,7 +1134,42 @@ helm version
 
 ---
 
-## 4.9 NVIDIA GPU Operator
+## 4.9 Shell Completions
+
+Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by `command -v`, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like `gh`, `uv`, `poetry`, or `terraform` arrive later.
+
+### Option A — One-liner (recommended)
+
+Download and run the idempotent installer script on both Sparks:
+
+```bash
+curl -fsSL https://mohnishbasha.github.io/dgx-spark-bundle/books/from-box-to-cluster/scripts/setup-completions.sh | bash
+```
+
+Safe to re-run — the script uses a marker comment to skip an already-installed block. Source: [`scripts/setup-completions.sh`](scripts/setup-completions.sh).
+
+### Option B — Manual
+
+```bash
+{
+  echo 'command -v kubectl >/dev/null && source <(kubectl completion bash)'
+  echo 'command -v helm    >/dev/null && source <(helm completion bash)'
+  echo 'command -v gh      >/dev/null && source <(gh completion -s bash)'
+  echo 'command -v uv      >/dev/null && eval "$(uv generate-shell-completion bash)"'
+  echo 'command -v poetry  >/dev/null && source <(poetry completions bash)'
+} >> ~/.bashrc
+
+# terraform ships its own installer that appends to ~/.bashrc
+command -v terraform >/dev/null && terraform -install-autocomplete
+
+source ~/.bashrc
+```
+
+Verify with `kubectl <Tab><Tab>` and `helm <Tab><Tab>`. Repeat on Spark 2 if you plan to run `kubectl` from there as well.
+
+---
+
+## 4.10 NVIDIA GPU Operator
 
 The GPU Operator is an NVIDIA-provided Kubernetes operator that automatically deploys and manages all GPU-related components on each node:
 
@@ -1208,7 +1243,7 @@ kubectl get nodes -o json | grep "rdma.available"
 
 ---
 
-## 4.10 Namespace Structure
+## 4.11 Namespace Structure
 
 Create the namespaces used by the infrastructure layers:
 
@@ -1236,7 +1271,7 @@ Project workload namespaces are created when those workloads are deployed and ar
 
 ---
 
-## 4.11 Uninstalling k3s (Recovery Reference)
+## 4.12 Uninstalling k3s (Recovery Reference)
 
 If you need to reinstall from scratch:
 
@@ -1259,7 +1294,7 @@ ssh moonlit@192.168.86.26 "/usr/local/bin/k3s-agent-uninstall.sh"
 
 ---
 
-## 4.12 Architecture Notes
+## 4.13 Architecture Notes
 
 **CNI: Flannel**
 k3s uses Flannel as the default CNI. Flannel provides pod-to-pod networking across nodes using VXLAN encapsulation. It does not support RDMA/RoCE — meaning NCCL (used by vLLM for tensor parallelism) falls back to TCP-based communication for cross-node GPU traffic.
@@ -1280,6 +1315,7 @@ At the end of this chapter you have:
 - [x] Spark 2 joined as worker node
 - [x] `kubectl get nodes` shows both nodes `Ready`
 - [x] Helm installed
+- [x] Shell completions enabled in `~/.bashrc`
 - [x] NVIDIA GPU Operator installed and running
 - [x] Both GB10 GPUs visible as `nvidia.com/gpu` resources in Kubernetes
 - [x] `core-services` and `monitoring` namespaces created
@@ -3034,7 +3070,7 @@ sudo netfilter-persistent save
 | AIBrix returns 503 for a model | Wrong `podSelector` labels in ModelAdapter | Per-model pods use `app: <name>`, not `ray.io/node-type: head` — see Chapter 7.7 |
 | NCCL hangs or very slow during tensor parallel | Wrong network interface selected | Set `NCCL_SOCKET_IFNAME=eth0` and `NCCL_DEBUG=INFO` — see Chapter 5.7 |
 | `nmcli` sets IP on wrong interface | Multiple active connections (WiFi + Ethernet) | Specify connection name explicitly — see Chapter 2.4 |
-| k3s uninstall breaks SSH on Spark 2 | k3s leaves iptables rules blocking port 22 | Flush iptables; see Chapter 4.11 recovery procedure |
+| k3s uninstall breaks SSH on Spark 2 | k3s leaves iptables rules blocking port 22 | Flush iptables; see Chapter 4.12 recovery procedure |
 | `kubectl get nodes` shows NotReady after reboot | k3s service didn't start automatically | `sudo systemctl start k3s` (Spark 1) or `sudo systemctl start k3s-agent` (Spark 2) |
 | GPU Operator stuck in Init for >15 min | NGC image pull timing out | Verify internet access; pre-pull image with `docker pull nvcr.io/nvidia/...` |
 | Disk full during model download | NVMe SSD full | Check `df -h /`; clear unused container images with `docker system prune` |
