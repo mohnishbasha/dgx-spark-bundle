@@ -1136,7 +1136,7 @@ helm version
 
 ## 4.9 Shell Completions
 
-Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by `command -v`, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like `gh`, `uv`, `poetry`, or `terraform` arrive later.
+Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by `command -v`, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like `gh`, `uv`, or `poetry` arrive later.
 
 ### Option A — One-liner (recommended)
 
@@ -1158,9 +1158,6 @@ Safe to re-run — the script uses a marker comment to skip an already-installed
   echo 'command -v uv      >/dev/null && eval "$(uv generate-shell-completion bash)"'
   echo 'command -v poetry  >/dev/null && source <(poetry completions bash)'
 } >> ~/.bashrc
-
-# terraform ships its own installer that appends to ~/.bashrc
-command -v terraform >/dev/null && terraform -install-autocomplete
 
 source ~/.bashrc
 ```

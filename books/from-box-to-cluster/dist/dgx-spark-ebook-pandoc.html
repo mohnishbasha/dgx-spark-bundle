@@ -1925,8 +1925,7 @@ class="header-section-number">7.11</span> 4.9 Shell Completions</h2>
 of the book. Each line is guarded by <code>command -v</code>, so it is a
 no-op if the tool is not installed yet — safe to add now and pick up
 completions automatically when tools like <code>gh</code>,
-<code>uv</code>, <code>poetry</code>, or <code>terraform</code> arrive
-later.</p>
+<code>uv</code>, or <code>poetry</code> arrive later.</p>
 <h3 data-number="7.11.1" id="option-a-one-liner-recommended"><span
 class="header-section-number">7.11.1</span> Option A — One-liner
 (recommended)</h3>
@@ -1947,10 +1946,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href=
 <span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&#39;command -v poetry  &gt;/dev/null &amp;&amp; source &lt;(poetry completions bash)&#39;</span></span>
 <span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.bashrc</span>
 <span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="co"># terraform ships its own installer that appends to ~/.bashrc</span></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> terraform <span class="op">&gt;</span>/dev/null <span class="kw">&amp;&amp;</span> <span class="ex">terraform</span> <span class="at">-install-autocomplete</span></span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/.bashrc</span></code></pre></div>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/.bashrc</span></code></pre></div>
 <p>Verify with <code>kubectl &lt;Tab&gt;&lt;Tab&gt;</code> and
 <code>helm &lt;Tab&gt;&lt;Tab&gt;</code>. Repeat on Spark 2 if you plan
 to run <code>kubectl</code> from there as well.</p>

@@ -174,7 +174,7 @@ helm version</code></pre>
 
             <div id="ch4-completions">
               <h2>Shell Completions</h2>
-              <p>Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by <code>command -v</code>, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like <code>gh</code>, <code>uv</code>, <code>poetry</code>, or <code>terraform</code> arrive later.</p>
+              <p>Enable tab-completion for the CLI tools you will use across the rest of the book. Each line is guarded by <code>command -v</code>, so it is a no-op if the tool is not installed yet — safe to add now and pick up completions automatically when tools like <code>gh</code>, <code>uv</code>, or <code>poetry</code> arrive later.</p>
 
               <h3>Option A — One-liner (recommended)</h3>
               <p>Download and run the idempotent installer script (<a href="scripts/setup-completions.sh" download>setup-completions.sh</a>) on both Sparks:</p>
@@ -189,9 +189,6 @@ helm version</code></pre>
   echo 'command -v uv      &gt;/dev/null &amp;&amp; eval "$(uv generate-shell-completion bash)"'
   echo 'command -v poetry  &gt;/dev/null &amp;&amp; source &lt;(poetry completions bash)'
 } &gt;&gt; ~/.bashrc
-
-# terraform ships its own installer that appends to ~/.bashrc
-command -v terraform &gt;/dev/null &amp;&amp; terraform -install-autocomplete
 
 source ~/.bashrc</code></pre>
               <p>Verify with <code>kubectl <kbd>Tab</kbd><kbd>Tab</kbd></code> and <code>helm <kbd>Tab</kbd><kbd>Tab</kbd></code>. Repeat on Spark 2 if you plan to run <code>kubectl</code> from there as well.</p>

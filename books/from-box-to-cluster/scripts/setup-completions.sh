@@ -36,16 +36,6 @@ else
   } >> "$BASHRC"
 fi
 
-# Terraform ships its own installer that writes its own block to ~/.bashrc.
-# It is itself idempotent — a second run refuses to re-install.
-if command -v terraform >/dev/null; then
-  echo "→ Installing terraform autocomplete"
-  terraform -install-autocomplete 2>/dev/null || \
-    echo "  (already installed — skipping)"
-else
-  echo "· terraform not installed — will be picked up next time this script runs"
-fi
-
 echo ""
 echo "Done. Open a new shell, or run: source ~/.bashrc"
 echo "Verify with: kubectl <Tab><Tab>  and  helm <Tab><Tab>"
